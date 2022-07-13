@@ -1,0 +1,5 @@
+<launch>
+
+	<node name="script_inhus_wo_nav" pkg="inhus_navigation" type="inhus_wo_nav.sh" output="screen"/>
+
+</launch>

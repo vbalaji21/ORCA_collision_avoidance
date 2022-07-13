@@ -1,0 +1,15 @@
+<launch>
+  	<arg name="map_name" default="laas_adream"/>
+	<arg name="simulator" default="morse"/>
+
+	<include file="$(find smb)/launch/map.launch">
+		<arg name="map_name" value="$(arg map_name)"/>
+	</include>
+	<include file="$(find smb)/launch/move_base.launch">
+		<arg name="simulator" value="$(arg simulator)"/>
+	</include>
+	<include file="$(find smb)/launch/locate.launch">
+		<arg name="simulator" value="$(arg simulator)"/>
+	</include>
+
+</launch>
