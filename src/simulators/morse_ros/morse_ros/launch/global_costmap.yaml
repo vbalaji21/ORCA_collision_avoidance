@@ -1,0 +1,23 @@
+publish_frequency: 5.0
+update_frequency: 20.0
+global_frame: map
+robot_base_frame: base_link
+rolling_window: false
+footprint_padding: 0.01
+footprint: [[-0.325, -0.325], [-0.325, 0.325], [0.325, 0.325], [0.46, 0.0], [0.325, -0.325]]
+plugins:
+  - {name: static_map, type: "costmap_2d::StaticLayer"}
+  - {name: inflater, type: "costmap_2d::InflationLayer"}
+  - {name: humans_layer, type: "agents_layer::AgentsLayer"}
+  - {name: humans_lay, type: "cohan_layers::StaticAgentLayer"}
+
+obstacles:
+  observation_sources: base_scan_filtered
+  base_scan_filtered: {data_type: LaserScan, topic: base_scan_filtered, expected_update_rate: 0.3, marking: true, clearing: true}
+  footprint_clearing_enabled: true
+  track_unknown_space: true
+inflater:
+  inflation_radius: 0.2
+static_map:
+  enabled:              true
+  map_topic:            "/map"

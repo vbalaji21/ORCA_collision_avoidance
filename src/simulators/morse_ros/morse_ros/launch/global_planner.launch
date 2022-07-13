@@ -1,0 +1,9 @@
+<launch>
+  <node pkg="tf" type="static_transform_publisher" name="human2_map_to_odom" args="0 0 0 0 0 0  map morse_agents/human2/odom 20"/>
+
+
+  <node pkg="global_planner" type="planner" name="gbl_planner" output="screen">
+    <rosparam file="$(find morse_ros)/launch/global_costmap.yaml" command="load" ns="costmap"/>
+  </node>
+
+</launch>
