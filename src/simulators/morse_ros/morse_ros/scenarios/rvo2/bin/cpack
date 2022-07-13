@@ -1,0 +1,8 @@
+#!/home/vvigneshba/ros_ws/InHuS_Social_Navigation/src/simulators/morse_ros/morse_ros/scenarios/rvo2/bin/python2
+# -*- coding: utf-8 -*-
+import re
+import sys
+from cmake import cpack
+if __name__ == '__main__':
+    sys.argv[0] = re.sub(r'(-script\.pyw|\.exe)?$', '', sys.argv[0])
+    sys.exit(cpack())
