@@ -7,6 +7,7 @@ Panels:
         - /Human_2_position1
         - /Human_2_orientation1
         - /Human_3_Path1
+        - /Path1
       Splitter Ratio: 0.3819354772567749
     Tree Height: 574
   - Class: rviz/Selection
@@ -788,6 +789,29 @@ Visualization Manager:
       Shaft Diameter: 0.10000000149011612
       Shaft Length: 0.10000000149011612
       Topic: /human_3_global_plan
+      Unreliable: false
+      Value: true
+    - Alpha: 1
+      Buffer Length: 1
+      Class: rviz/Path
+      Color: 25; 255; 0
+      Enabled: true
+      Head Diameter: 0.30000001192092896
+      Head Length: 0.20000000298023224
+      Length: 0.30000001192092896
+      Line Style: Lines
+      Line Width: 0.029999999329447746
+      Name: Path
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0
+      Pose Color: 255; 85; 255
+      Pose Style: None
+      Radius: 0.029999999329447746
+      Shaft Diameter: 0.10000000149011612
+      Shaft Length: 0.10000000149011612
+      Topic: /morse_agents/human2/path_viz
       Unreliable: false
       Value: true
   Enabled: true
