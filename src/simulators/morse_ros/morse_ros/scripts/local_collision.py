@@ -8,6 +8,7 @@ from geometry_msgs.msg import PoseStamped, Twist
 import rvo2
 from tf.transformations import euler_from_quaternion
 import math
+from copy import deepcopy
 import numpy as np
 from rospkg import RosPack
 import yaml
@@ -35,6 +36,7 @@ class SimulationHandler:
 
         self.humans = [Human(i, self.config, self.debug) for i in range(self.num_hum)]
 
+        rospy.sleep(2.0)
         self.rate = rospy.Rate(rate)
 
     def run(self):
@@ -150,6 +152,7 @@ class Human:
         scene_id = self.scenarios["selected_id"]
 
         self.goals = self.scenarios["goals"][scene_id]
+        self.goals_bkup = deepcopy(self.goals)
 
         if self.debug:
             print("Selected Planner: {}".format(self.planner_name))
@@ -223,6 +226,13 @@ class Human:
             self.goal_twist.linear.x = 0.0
             self.goal_twist.linear.y = 0.0
             self.goal_twist.angular.z = 0.0
+
+            # If looping is enabled, reverse
+            if self.loop:
+                self.goals_bkup.reverse()
+                self.goals = deepcopy(self.goals_bkup)
+                self.set_goal(self.goals[0][0], self.goals[0][1])
+
         elif self.current_pose != self.goal_pose:
             # Make a new plan for the next goal position
             if self.goals != [] and self._MAKE_NEW_PLAN:

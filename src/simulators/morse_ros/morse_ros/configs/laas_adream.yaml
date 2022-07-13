@@ -1,4 +1,4 @@
-num_humans: 1 # Number should match the number of individual human configs from below
+num_humans: 3 # Number should match the number of individual human configs from below
 
 human_1:
   loop_path: True
@@ -8,7 +8,7 @@ human_1:
     goals: [ # Sequence provided by scenerio
       [[1.0, 1.0], [2.0, 2.0]],
       [[2.0, 1.0]],
-      [[8.5, 2.31], [8.5, 3.31]]
+      [[8.5, 2.31], [8.5, -5.0]]
     ]
 
 human_2:
@@ -19,5 +19,16 @@ human_2:
     goals: [ # Sequence provided by scenerio
       [[1.0, 1.0], [2.0, 2.0]],
       [[2.0, 1.0]],
-      [[3.0, 1.0]]
+      [[8.5, -5.0], [8.5, 2.31]]
+    ]
+
+human_3:
+  loop_path: True
+  planner_name: 'gbl_planner/make_plan'
+  scenarios:
+    selected_id: 2
+    goals: [ # Sequence provided by scenerio
+      [[1.0, 1.0], [2.0, 2.0]],
+      [[2.0, 1.0]],
+      [[10.0, 15.0], [10.0, 2.00]]
     ]
