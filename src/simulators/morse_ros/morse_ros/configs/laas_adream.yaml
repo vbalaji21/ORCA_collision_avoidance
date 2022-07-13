@@ -1,0 +1,23 @@
+num_humans: 2 # Number should match the number of individual human configs from below
+
+human_1:
+  loop_path: True
+  planner_name: ""
+  scenarios:
+    selected_id: 2 # ID to select from the goal sequence below. Starts with 0
+    goals: [ # Sequence provided by scenerio
+      [[1.0, 1.0], [2.0, 2.0]],
+      [[2.0, 1.0]],
+      [[3.0, 1.0]]
+    ]
+
+human_2:
+  loop_path: True
+  planner_name: ""
+  scenarios:
+    selected_id: 2
+    goals: [ # Sequence provided by scenerio
+      [[1.0, 1.0], [2.0, 2.0]],
+      [[2.0, 1.0]],
+      [[3.0, 1.0]]
+    ]
