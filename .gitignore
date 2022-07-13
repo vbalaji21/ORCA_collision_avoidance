@@ -1,0 +1,6 @@
+build/
+devel/
+.vscode/
+*.swp
+*.pyc
+*venv/*

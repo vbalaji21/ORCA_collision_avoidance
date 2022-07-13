@@ -1,0 +1,690 @@
+diff --git a/src/inhus_system/inhus/src/humanBehaviorModel_node.cpp b/src/inhus_system/inhus/src/humanBehaviorModel_node.cpp
+index 7603132..f6fbe61 100644
+--- a/src/inhus_system/inhus/src/humanBehaviorModel_node.cpp
++++ b/src/inhus_system/inhus/src/humanBehaviorModel_node.cpp
+@@ -891,6 +891,7 @@ void HumanBehaviorModel::updatePoseMarkers()
+ 	human_pose_marker_.markers[0].pose.orientation.y = q.y();
+ 	human_pose_marker_.markers[0].pose.orientation.z = q.z();
+ 
++	/*
+ 	robot_pose_marker_.markers[0].pose.position.x = model_r_pose_vel_.pose.x;
+ 	robot_pose_marker_.markers[0].pose.position.y = model_r_pose_vel_.pose.y;
+ 	robot_pose_marker_.markers[1].pose.position.x = model_r_pose_vel_.pose.x;
+@@ -900,9 +901,10 @@ void HumanBehaviorModel::updatePoseMarkers()
+ 	robot_pose_marker_.markers[0].pose.orientation.x = q.x();
+ 	robot_pose_marker_.markers[0].pose.orientation.y = q.y();
+ 	robot_pose_marker_.markers[0].pose.orientation.z = q.z();
++	*/
+ 
+ 	pub_pose_marker_human_.publish(human_pose_marker_);
+-	pub_pose_marker_robot_.publish(robot_pose_marker_);
++	//pub_pose_marker_robot_.publish(robot_pose_marker_);
+ }
+ 
+ 
+diff --git a/src/inhus_system/inhus_navigation/launch/other_launch/_map_pov.launch b/src/inhus_system/inhus_navigation/launch/other_launch/_map_pov.launch
+index 33b9ef1..39be441 100644
+--- a/src/inhus_system/inhus_navigation/launch/other_launch/_map_pov.launch
++++ b/src/inhus_system/inhus_navigation/launch/other_launch/_map_pov.launch
+@@ -14,5 +14,13 @@
+ 	<node name="map_server_pov" pkg="map_server" type="map_server" ns="$(arg ns)" args="$(find inhus_navigation)/maps/laas_adream/laas_adream_pov.yaml" if="$(eval 'laas_adream'==arg('map_name'))">
+ 		<remap from="map" to="map_pov"/>
+ 	</node>
+-
++	<node name="map_server_pov" pkg="map_server" type="map_server" ns="$(arg ns)" args="$(find inhus_navigation)/maps/mall/mall_pov.yaml" if="$(eval 'mall'==arg('map_name'))">
++		<remap from="map" to="map_pov"/>
++	</node>
++	<node name="map_server_pov" pkg="map_server" type="map_server" ns="$(arg ns)" args="$(find inhus_navigation)/maps/open_space/open_space_pov.yaml" if="$(eval 'open_space'==arg('map_name'))">
++		<remap from="map" to="map_pov"/>
++	</node>
++	<node name="map_server_pov" pkg="map_server" type="map_server" ns="$(arg ns)" args="$(find inhus_navigation)/maps/open_space/maze_pov.yaml" if="$(eval 'maze'==arg('map_name'))">
++		<remap from="map" to="map_pov"/>
++	</node>
+ </launch>
+diff --git a/src/inhus_system/inhus_navigation/launch/other_launch/_map_static.launch b/src/inhus_system/inhus_navigation/launch/other_launch/_map_static.launch
+index 6642f42..28424bb 100644
+--- a/src/inhus_system/inhus_navigation/launch/other_launch/_map_static.launch
++++ b/src/inhus_system/inhus_navigation/launch/other_launch/_map_static.launch
+@@ -14,5 +14,14 @@
+ 	<node name="map_server" pkg="map_server" type="map_server" ns="$(arg ns)" args="$(find inhus_navigation)/maps/laas_adream/laas_adream.yaml" if="$(eval 'laas_adream'==arg('map_name'))">
+ 		<remap from="map" to="map_static"/>
+ 	</node>
++	<node name="map_server" pkg="map_server" type="map_server" ns="$(arg ns)" args="$(find inhus_navigation)/maps/mall/mall.yaml" if="$(eval 'mall'==arg('map_name'))">
++		<remap from="map" to="map_static"/>
++	</node>
++	<node name="map_server" pkg="map_server" type="map_server" ns="$(arg ns)" args="$(find inhus_navigation)/maps/open_space/open_space.yaml" if="$(eval 'open_space'==arg('map_name'))">
++		<remap from="map" to="map_static"/>
++	</node>
++	<node name="map_server" pkg="map_server" type="map_server" ns="$(arg ns)" args="$(find inhus_navigation)/maps/maze/maze.yaml" if="$(eval 'maze'==arg('map_name'))">
++		<remap from="map" to="map_static"/>
++	</node>
+ 
+ </launch>
+diff --git a/src/inhus_system/inhus_navigation/rviz/inhus.rviz b/src/inhus_system/inhus_navigation/rviz/inhus.rviz
+index 0abe8f9..f2fa6c8 100644
+--- a/src/inhus_system/inhus_navigation/rviz/inhus.rviz
++++ b/src/inhus_system/inhus_navigation/rviz/inhus.rviz
+@@ -5,7 +5,7 @@ Panels:
+     Property Tree Widget:
+       Expanded: ~
+       Splitter Ratio: 0.779187798500061
+-    Tree Height: 475
++    Tree Height: 574
+   - Class: rviz/Selection
+     Name: Selection
+   - Class: rviz/Tool Properties
+@@ -69,25 +69,461 @@ Visualization Manager:
+     - Alpha: 1
+       Class: rviz/RobotModel
+       Collision Enabled: false
+-      Enabled: false
++      Enabled: true
+       Links:
+         All Links Enabled: true
+         Expand Joint Details: false
+         Expand Link Details: false
+         Expand Tree: false
+         Link Tree Style: Links in Alphabetic Order
++        base_bellow_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        base_footprint:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        base_laser_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++        base_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        bl_caster_l_wheel_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        bl_caster_r_wheel_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        bl_caster_rotation_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        br_caster_l_wheel_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        br_caster_r_wheel_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        br_caster_rotation_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        double_stereo_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        fl_caster_l_wheel_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        fl_caster_r_wheel_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        fl_caster_rotation_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        fr_caster_l_wheel_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        fr_caster_r_wheel_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        fr_caster_rotation_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        head_mount_kinect_ir_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        head_mount_kinect_ir_optical_frame:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++        head_mount_kinect_rgb_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        head_mount_kinect_rgb_optical_frame:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++        head_mount_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        head_mount_prosilica_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        head_mount_prosilica_optical_frame:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++        head_pan_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        head_plate_frame:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        head_tilt_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        high_def_frame:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++        high_def_optical_frame:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++        imu_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++        l_elbow_flex_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        l_forearm_cam_frame:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++        l_forearm_cam_optical_frame:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++        l_forearm_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        l_forearm_roll_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        l_gripper_l_finger_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        l_gripper_l_finger_tip_frame:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++        l_gripper_l_finger_tip_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        l_gripper_led_frame:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++        l_gripper_motor_accelerometer_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        l_gripper_motor_screw_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++        l_gripper_motor_slider_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++        l_gripper_palm_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        l_gripper_r_finger_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        l_gripper_r_finger_tip_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        l_gripper_tool_frame:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++        l_shoulder_lift_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        l_shoulder_pan_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        l_torso_lift_side_plate_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++        l_upper_arm_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        l_upper_arm_roll_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        l_wrist_flex_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        l_wrist_roll_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        laser_tilt_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++        laser_tilt_mount_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        narrow_stereo_l_stereo_camera_frame:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++        narrow_stereo_l_stereo_camera_optical_frame:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++        narrow_stereo_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++        narrow_stereo_optical_frame:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++        narrow_stereo_r_stereo_camera_frame:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++        narrow_stereo_r_stereo_camera_optical_frame:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++        projector_wg6802418_child_frame:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++        projector_wg6802418_frame:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++        r_elbow_flex_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        r_forearm_cam_frame:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++        r_forearm_cam_optical_frame:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++        r_forearm_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        r_forearm_roll_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        r_gripper_l_finger_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        r_gripper_l_finger_tip_frame:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++        r_gripper_l_finger_tip_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        r_gripper_led_frame:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++        r_gripper_motor_accelerometer_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        r_gripper_motor_screw_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++        r_gripper_motor_slider_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++        r_gripper_palm_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        r_gripper_r_finger_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        r_gripper_r_finger_tip_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        r_gripper_tool_frame:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++        r_shoulder_lift_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        r_shoulder_pan_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        r_torso_lift_side_plate_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++        r_upper_arm_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        r_upper_arm_roll_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        r_wrist_flex_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        r_wrist_roll_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        sensor_mount_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        torso_lift_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++          Value: true
++        torso_lift_motor_screw_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++        wide_stereo_l_stereo_camera_frame:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++        wide_stereo_l_stereo_camera_optical_frame:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++        wide_stereo_link:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++        wide_stereo_optical_frame:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++        wide_stereo_r_stereo_camera_frame:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
++        wide_stereo_r_stereo_camera_optical_frame:
++          Alpha: 1
++          Show Axes: false
++          Show Trail: false
+       Name: RobotModel
+       Robot Description: robot_description
+       TF Prefix: ""
+       Update Interval: 0
+-      Value: false
++      Value: true
+       Visual Enabled: true
+     - Class: rviz/MarkerArray
+       Enabled: true
+       Marker Topic: /human1/marker_robot_pose
+       Name: RobotPoseMarker
+       Namespaces:
+-        "": true
++        {}
+       Queue Size: 100
+       Value: true
+     - Class: rviz/MarkerArray
+@@ -178,27 +614,27 @@ Visualization Manager:
+       Use Timestamp: false
+       Value: false
+     - Class: rviz/MarkerArray
+-      Enabled: false
++      Enabled: true
+       Marker Topic: /human1/move_base/HATebLocalPlannerROS/local_plan_fp_poses
+       Name: HumanTimeVelocityMarkers
+       Namespaces:
+         {}
+       Queue Size: 100
+-      Value: false
++      Value: true
+     - Class: rviz/MarkerArray
+-      Enabled: false
++      Enabled: true
+       Marker Topic: /human1/move_base/HATebLocalPlannerROS/agents_local_plans_fp_poses
+       Name: HumanPredictionMarkers
+       Namespaces:
+         {}
+       Queue Size: 100
+-      Value: false
++      Value: true
+     - Class: rviz/Marker
+       Enabled: true
+       Marker Topic: /human1/visualization_marker
+       Name: InHuS goal
+       Namespaces:
+-        "": true
++        {}
+       Queue Size: 100
+       Value: true
+     - Class: rviz/Marker
+@@ -210,21 +646,21 @@ Visualization Manager:
+       Queue Size: 100
+       Value: false
+     - Class: rviz/MarkerArray
+-      Enabled: false
++      Enabled: true
+       Marker Topic: /move_base/HATebLocalPlannerROS/local_plan_fp_poses
+       Name: RobotTimeVelocityMarkers
+       Namespaces:
+-        {}
++        robot_fp_poses: true
+       Queue Size: 100
+-      Value: false
++      Value: true
+     - Class: rviz/MarkerArray
+-      Enabled: false
++      Enabled: true
+       Marker Topic: /move_base/HATebLocalPlannerROS/agents_local_plans_fp_poses
+       Name: RobotPredictionMarkers
+       Namespaces:
+         {}
+       Queue Size: 100
+-      Value: false
++      Value: true
+     - Alpha: 1
+       Buffer Length: 1
+       Class: rviz/Path
+@@ -318,27 +754,27 @@ Visualization Manager:
+       Invert Z Axis: false
+       Name: Current View
+       Near Clip Distance: 0.009999999776482582
+-      Scale: 60.25770568847656
++      Scale: 19.296541213989258
+       Target Frame: <Fixed Frame>
+       Value: TopDownOrtho (rviz)
+-      X: 9.628571510314941
+-      Y: 7.057828903198242
++      X: 13.673803329467773
++      Y: 20.162118911743164
+     Saved: ~
+ Window Geometry:
+   Displays:
+-    collapsed: true
+-  Height: 1031
+-  Hide Left Dock: true
++    collapsed: false
++  Height: 1136
++  Hide Left Dock: false
+   Hide Right Dock: true
+-  QMainWindow State: 000000ff00000000fd000000040000000000000156000003b1fc0200000008fb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005c00fffffffb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c006100790073000000003b00000264000000c700fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007300000002a5000001470000005c00fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c000002610000000100000111000003b1fc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a00560069006500770073000000003b000003b1000000a000fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e100000197000000030000077d0000003efc0100000002fb0000000800540069006d006500000000000000077d0000042700fffffffb0000000800540069006d0065010000000000000450000000000000000000000780000003b100000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
++  QMainWindow State: 000000ff00000000fd00000004000000000000015600000416fc0200000008fb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005c00fffffffb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c006100790073010000003d000002c9000000c900fffffffb0000001e0054006f006f006c002000500072006f0070006500720074006900650073010000030c000001470000005c00fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c000002610000000100000111000003b1fc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a00560069006500770073000000003b000003b1000000a400fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e100000197000000030000077d0000003efc0100000002fb0000000800540069006d006500000000000000077d000004f300fffffffb0000000800540069006d00650100000000000004500000000000000000000005e10000041600000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+   Selection:
+     collapsed: false
+   Time:
+     collapsed: false
+   Tool Properties:
+-    collapsed: true
++    collapsed: false
+   Views:
+     collapsed: true
+-  Width: 1920
+-  X: 1920
+-  Y: 25
++  Width: 1853
++  X: 67
++  Y: 27
+diff --git a/src/inhus_system/inhus_navigation/src/interface_morse_input_node.cpp b/src/inhus_system/inhus_navigation/src/interface_morse_input_node.cpp
+index ba5252b..28c9502 100644
+--- a/src/inhus_system/inhus_navigation/src/interface_morse_input_node.cpp
++++ b/src/inhus_system/inhus_navigation/src/interface_morse_input_node.cpp
+@@ -93,7 +93,7 @@ int main(int argc, char** argv)
+ 	////  Input Subscribers //// Part to modify for another simulator
+   	////////////////////////////
+ 	ros::Subscriber sub_human_marker = nh.subscribe("/morse_agents/human1/marker", 10, humanCallback);
+-	ros::Subscriber sub_robot_marker = nh.subscribe("/morse_agents/pr2/marker", 10, robotCallback);
++	ros::Subscriber sub_robot_marker = nh.subscribe("/marker", 10, robotCallback);
+ 	ros::Subscriber sub_human_odom = nh.subscribe("/morse_agents/human1/odom", 10, humanOdomCallback);
+ 	////////////////////////////
+ 	////////////////////////////
+diff --git a/src/simulators/morse_ros/morse_ros/scenarios/pr2_laas_adream_human.py b/src/simulators/morse_ros/morse_ros/scenarios/pr2_laas_adream_human.py
+index 1d022d3..f557820 100755
+--- a/src/simulators/morse_ros/morse_ros/scenarios/pr2_laas_adream_human.py
++++ b/src/simulators/morse_ros/morse_ros/scenarios/pr2_laas_adream_human.py
+@@ -55,17 +55,17 @@ def add_human(h_id):
+ # for armature (joint_trajectory_contorller) and wheels (cmd_vel) to the scene
+ # pr2 = NavPR2(with_keyboard=True, show_laser=True, laser_z=0.05)
+ robot_name = "pr2"
+-pr2 = NavPR2(with_keyboard=True, show_laser=False, laser_z=0.05, namespace=namespace+robot_name+"/")
++pr2 = NavPR2(with_keyboard=True, show_laser=False, laser_z=0.05, namespace="")
+ pr2.add_interface("ros")
+ 
+ # For fake localization
+ ground_truth = Odometry()
+ pr2.append(ground_truth)
+-ground_truth.add_interface("ros", topic= namespace+robot_name+"/base_pose_ground_truth")
++ground_truth.add_interface("ros", topic="/base_pose_ground_truth")
+ 
+ # Agent Marker to get the absolute position and velocity
+ robot_marker = AgentMarker()
+-robot_marker.add_interface("ros", topic= namespace+robot_name+"/marker")
++robot_marker.add_interface("ros", topic="/marker")
+ pr2.append(robot_marker)
+ 
+ # put the robot and humans in some good places and add clock
+diff --git a/src/simulators/morse_ros/pr2_common_actions/pr2_tuck_arms_action/test/tuck_arms_test.py b/src/simulators/morse_ros/pr2_common_actions/pr2_tuck_arms_action/test/tuck_arms_test.py
+index 2481aae..8e6ba64 100755
+--- a/src/simulators/morse_ros/pr2_common_actions/pr2_tuck_arms_action/test/tuck_arms_test.py
++++ b/src/simulators/morse_ros/pr2_common_actions/pr2_tuck_arms_action/test/tuck_arms_test.py
+@@ -86,7 +86,7 @@ def main():
+                     rospy.signal_shutdown("ERROR")
+ 
+             if arm in ('--help', '-h'):
+-                print __doc__ % vars()
++                print(__doc__ % vars())
+     
+     tuck_arm_client = actionlib.SimpleActionClient(action_name, TuckArmsAction)
+     rospy.logdebug('Waiting for action server to start')
