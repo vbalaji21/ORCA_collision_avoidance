@@ -199,7 +199,8 @@ class Human:
             ]
         )
 
-        self.omega = self.normalize_theta(self.yaw_orig_world - self.current_yaw)/ (1/RATE_HZ)
+        omega = self.normalize_theta(self.yaw_orig_world - self.current_yaw)/ (1/RATE_HZ)
+        self.omega = self.clamp(omega, -12.5, 12.5)
         
     @staticmethod
     def normalize_theta(theta):
@@ -219,6 +220,10 @@ class Human:
         else:
             return False
 
+    @staticmethod
+    def clamp(x, minn, maxx):
+        return x if x > minn and x < maxx else (minn if x < minn else maxx)
+
     def update_step(self):
         
         if self.goal_checker(self.current_pose, self.goal_pose, 0.2): # and len(self.path_list) < 2:
@@ -233,7 +238,7 @@ class Human:
                 self.goals = deepcopy(self.goals_bkup)
                 self.set_goal(self.goals[0][0], self.goals[0][1])
 
-        elif self.current_pose != self.goal_pose:
+        else: # self.current_pose != self.goal_pose:
             # Make a new plan for the next goal position
             if self.goals != [] and self._MAKE_NEW_PLAN:
                 goal = self.goals[0]
@@ -251,6 +256,13 @@ class Human:
                 desired_pose = self.path_list[0]
                 self.path_list.remove(desired_pose)
                 self._compute_vel_and_orientation(desired_pose)
+
+                #Replan if it moves 1 m away from desired position in trajectory
+                if (False == self.goal_checker(self.current_pose, desired_pose, 0.3)):
+                    self.make_plan()
+                    # copy new plan
+                    self.path_list = self.plan.path
+
 
                 # Set position and veloctiy
                 SIM.setAgentPosition(self.orca_id, (self.current_pose.pose.position.x, self.current_pose.pose.position.y))
