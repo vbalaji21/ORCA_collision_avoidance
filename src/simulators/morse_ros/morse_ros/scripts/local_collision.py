@@ -14,7 +14,7 @@ from rospkg import RosPack
 import yaml
 import random
 
-SIM = rvo2.PyRVOSimulator(1/60.0, 1.5, 3.0 , 1.5, 1.0, 0.70, 1.8) #TODO:better way to give these parameters
+SIM = rvo2.PyRVOSimulator(1/60.0, 1.5, 3.0 , 1.5, 1.0, 0.4, 1.8) #TODO:better way to give these parameters
 RATE_HZ = 20.0
 
 class SimulationHandler:
@@ -198,10 +198,10 @@ class Human:
             print("Human {}: Current Twist - {}\n".format(self.id + 2, self.current_twist))
             print("Human {}: Current Yaw - {}\n".format(self.id + 2, self.current_yaw))
 
-    
+
     def get_pose(self):
         return self.current_pose
-    
+
     def set_goal(self, x, y):
         self.goal_pose.header.stamp = rospy.Time(0)
         self.goal_pose.pose.position.x = x
@@ -356,7 +356,7 @@ class Human:
 
                 # Get twist
                 self.goal_twist_world.linear.x, self.goal_twist_world.linear.y = SIM.getAgentVelocity(self.orca_id) #Doubt send number or structure
-                
+
                 # Convert the velocity to human frame
                 self.goal_twist.linear.x = self.goal_twist_world.linear.x*math.cos(self.yaw_orig_world)+ self.goal_twist_world.linear.y*math.sin(self.yaw_orig_world) #vel*math.cos(self.yaw_orig_world) 
                 self.goal_twist.linear.y = -self.goal_twist_world.linear.x*math.sin(self.yaw_orig_world)+ self.goal_twist_world.linear.y*math.cos(self.yaw_orig_world) #vel*math.sin(yaw)
