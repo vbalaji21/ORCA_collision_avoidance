@@ -14,8 +14,9 @@ from rospkg import RosPack
 import yaml
 import random
 
-SIM = rvo2.PyRVOSimulator(1/60.0, 1.5, 3.0 , 1.5, 1.0, 0.70, 1.8) #TODO:better way to give these parameters
-
+SIM = rvo2.PyRVOSimulator(
+    1 / 60.0, 1.5, 3.0, 1.5, 1.0, 0.4, 1.8
+)  # TODO:better way to give these parameters
 RATE_HZ = 20.0
 
 
@@ -25,7 +26,7 @@ class SimulationHandler:
         self.config = config
         self.debug = debug
 
-        #TODO:change place
+        # TODO:change place
         self.orca_robot_id = None
         self.inhus_robot_id = None
         self.current_robot_pose = PoseStamped()
@@ -46,9 +47,16 @@ class SimulationHandler:
 
         self.humans = [Human(i, self.config, self.debug) for i in range(self.num_hum)]
 
-        #TODO: chenge this subscriber place and write better
-        rospy.Subscriber('/morse_agents/human1/odom', Odometry, self.update_inhus_pose, self.current_inhus_pose)
-        rospy.Subscriber('/odom', Odometry, self.update_robot_pose, self.current_robot_pose)
+        # TODO: chenge this subscriber place and write better
+        rospy.Subscriber(
+            "/morse_agents/human1/odom",
+            Odometry,
+            self.update_inhus_pose,
+            self.current_inhus_pose,
+        )
+        rospy.Subscriber(
+            "/odom", Odometry, self.update_robot_pose, self.current_robot_pose
+        )
 
         self.add_inhus_and_cohan()
         self.add_sim_obstacles()
@@ -71,39 +79,72 @@ class SimulationHandler:
         # print("subscribe robot pose", args.pose.position.x, args.pose.position.y)
 
     def add_inhus_and_cohan(self):
-        self.inhus_robot_id = SIM.addAgent((self.current_inhus_pose.pose.position.x, self.current_inhus_pose.pose.position.y))
-        self.orca_robot_id = SIM.addAgent((self.current_robot_pose.pose.position.x, self.current_robot_pose.pose.position.y))
-
+        self.inhus_robot_id = SIM.addAgent(
+            (
+                self.current_inhus_pose.pose.position.x,
+                self.current_inhus_pose.pose.position.y,
+            )
+        )
+        self.orca_robot_id = SIM.addAgent(
+            (
+                self.current_robot_pose.pose.position.x,
+                self.current_robot_pose.pose.position.y,
+            )
+        )
 
     def update_robot_and_inhus_position(self):
 
-        SIM.setAgentPosition(self.inhus_robot_id, (self.current_inhus_pose.pose.position.x, self.current_inhus_pose.pose.position.y))
-        SIM.setAgentPosition(self.orca_robot_id, (self.current_robot_pose.pose.position.x, self.current_robot_pose.pose.position.y))
+        SIM.setAgentPosition(
+            self.inhus_robot_id,
+            (
+                self.current_inhus_pose.pose.position.x,
+                self.current_inhus_pose.pose.position.y,
+            ),
+        )
+        SIM.setAgentPosition(
+            self.orca_robot_id,
+            (
+                self.current_robot_pose.pose.position.x,
+                self.current_robot_pose.pose.position.y,
+            ),
+        )
 
         # print("update inhus pose ", self.current_inhus_pose.pose.position.x, self.current_inhus_pose.pose.position.y)
-        # print("update robot pose ", self.current_robot_pose.pose.position.x, self.current_robot_pose.pose.position.y)        
+        # print("update robot pose ", self.current_robot_pose.pose.position.x, self.current_robot_pose.pose.position.y)
 
-            # sim.setAgentPosition(general_database.human3_orca, (orca_human2.current_pose.pose.position.x, orca_human2.current_pose.pose.position.y))
-            # sim.setAgentPosition(database.human1_orca, (database.current_human1_pose_x, database.current_human1_pose_y))
-
+        # sim.setAgentPosition(general_database.human3_orca, (orca_human2.current_pose.pose.position.x, orca_human2.current_pose.pose.position.y))
+        # sim.setAgentPosition(database.human1_orca, (database.current_human1_pose_x, database.current_human1_pose_y))
 
     def add_sim_obstacles(self):
-        o1 = SIM.addObstacle([(1.5, -0.117), (5.5, -0.177), (5.5, -0.0143), (1.5, -0.0143)]) #Room 1
-        o2 = SIM.addObstacle([(5.77, 18.3), (11.0, 18.3), (11.0, 18.5), (5.77, 18.5)]) #Room 2  
-        o3 = SIM.addObstacle([(7.14, 12.5), (8.34, 12.5), (8.34, 12.7), (7.14, 12.7)]) # Inter room entrance
-        # o4 = SIM.addObstacle([(6.36, 9.57), (6.57, 9.57), (6.57, 11.5), (6.36, 11.5)]) # Inter room inside entrance 
+        o1 = SIM.addObstacle(
+            [(1.5, -0.117), (5.5, -0.177), (5.5, -0.0143), (1.5, -0.0143)]
+        )  # Room 1
+        o2 = SIM.addObstacle(
+            [(5.77, 18.3), (11.0, 18.3), (11.0, 18.5), (5.77, 18.5)]
+        )  # Room 2
+        o3 = SIM.addObstacle(
+            [(7.14, 12.5), (8.34, 12.5), (8.34, 12.7), (7.14, 12.7)]
+        )  # Inter room entrance
+        # o4 = SIM.addObstacle([(6.36, 9.57), (6.57, 9.57), (6.57, 11.5), (6.36, 11.5)]) # Inter room inside entrance
 
         # o5 = SIM.addObstacle([(6.31, 7.4), (6.52, 7.4), (6.52, 8.55), (6.31, 8.55)]) # Inter room crossway 1
-        # o6 = SIM.addObstacle([(4.06, 8.38), (5.45, 8.38), (5.45, 8.54), (4.06, 8.54)]) # Inter room crossway 2  
+        # o6 = SIM.addObstacle([(4.06, 8.38), (5.45, 8.38), (5.45, 8.54), (4.06, 8.54)]) # Inter room crossway 2
         # # o7 = SIM.addObstacle([(7.66, 8.37), (8.71, 8.37), (8.71, 8.54), (7.66, 8.54)]) # Inter room crossway 3
-        # # o8 = SIM.addObstacle([(9.46, 11.2), (9.57, 11.2), (9.57, 12.6), (9.46, 12.6)]) # Inter room entrance 1 
+        # # o8 = SIM.addObstacle([(9.46, 11.2), (9.57, 11.2), (9.57, 12.6), (9.46, 12.6)]) # Inter room entrance 1
 
-
-        o9 = SIM.addObstacle([(6.21, 3.32), (9.52, 3.32), (9.52, 4.25), (6.21, 4.25)]) #Room 1
+        o9 = SIM.addObstacle(
+            [(6.21, 3.32), (9.52, 3.32), (9.52, 4.25), (6.21, 4.25)]
+        )  # Room 1
         # o10 = SIM.addObstacle([(5.52, 4.88), (5.52, 5.59), (3.4, 5.59), (3.4, 4.88)]) #Room 2
-        # o11 = SIM.addObstacle([(1.28, 4.62), (2.32, 4.62), (2.32, 12.5), (1.28, 12.5)]) #Room 2    
+        # o11 = SIM.addObstacle([(1.28, 4.62), (2.32, 4.62), (2.32, 12.5), (1.28, 12.5)]) #Room 2
 
         # k1 = SIM.processObstacles()
+
+    def reset_simulation(self):
+        """ "Reset simulation"""
+        # TODO: Reset simulation window
+        for human in self.humans:
+            human.reset(diff_scene=True)
 
     def run(self):
         while not rospy.is_shutdown():
@@ -197,10 +238,26 @@ class Human:
         # Finally, setup ORCA
         self.add_to_orca()
 
+    def reset(self, diff_scene=False):
+        """Reset simulation to different scenario"""
+        if diff_scene:
+            # Get random scene
+            scene_id = np.random.randint(0, len(self.scenarios))
+            self._select_scene(scene_id)
+        return
+
     def add_to_orca(self):
         self.orca_id = SIM.addAgent(
             (self.current_pose.pose.position.x, self.current_pose.pose.position.y)
         )
+
+    def _select_scene(self, scene_id):
+        """Select scene from config file"""
+        self.goals = self.scenarios["goals"][scene_id]
+        self.goals_bkup = deepcopy(self.goals)
+
+        # Setup initial pose for the simulation
+        # TODO: Add initial pose from goal index 0
 
     def _pose_callback(self, msg):
         self.current_pose.pose = msg.pose.pose
@@ -240,10 +297,9 @@ class Human:
         self.planner_name = self.configs["planner_name"]
         # Get goal poses
         self.scenarios = self.configs["scenarios"]
-        scene_id = self.scenarios["selected_id"]
+        scene_id = self.scenarios["initial_scene_id"]
 
-        self.goals = self.scenarios["goals"][scene_id]
-        self.goals_bkup = deepcopy(self.goals)
+        self._select_scene(scene_id)
 
         if self.debug:
             print("Selected Planner: {}".format(self.planner_name))
@@ -282,7 +338,7 @@ class Human:
         print("print self.plan", self.plan)
         print("print self.plan found", self.plan.plan_found)
 
-        if(self.plan.plan_found != 1):
+        if self.plan.plan_found != 1:
             self._MAKE_NEW_PLAN = True
 
     def _compute_vel_and_orientation(self, desired_pose):
@@ -358,7 +414,7 @@ class Human:
         else:  # self.current_pose != self.goal_pose:
             # Make a new plan for the next goal position
             if self.goals != [] and self._MAKE_NEW_PLAN:
-                goal = self.goals[0] 
+                goal = self.goals[0]
                 self.set_goal(goal[0], goal[1])
                 self.make_plan()
 
@@ -375,17 +431,22 @@ class Human:
                 self._compute_vel_and_orientation(desired_pose)
 
                 # Replan if it moves 1 m away from desired position in trajectory
-                if not self.goal_checker(self.current_pose, desired_pose, 0.3):
+                if False == self.goal_checker(self.current_pose, desired_pose, 0.3):
                     self.make_plan()
                     # copy new plan
                     self.path_list = self.plan.path
 
                 # Set position and veloctiy
-
-                SIM.setAgentPosition(self.orca_id, (self.current_pose.pose.position.x, self.current_pose.pose.position.y))
+                SIM.setAgentPosition(
+                    self.orca_id,
+                    (
+                        self.current_pose.pose.position.x,
+                        self.current_pose.pose.position.y,
+                    ),
+                )
 
                 # #Pertubation
-                # q = random.randrange(1.0, 10.0, 10.0) 
+                # q = random.randrange(1.0, 10.0, 10.0)
                 # print("q", q)
                 # angle = (q) *0.1  # std::rand() * 2.0f * M_PI / RAND_MAX;
                 # dist = (q) * 0.0001 #  std::rand() * 0.0001f / RAND_MAX;
@@ -397,7 +458,10 @@ class Human:
                 # print("new linear x", self.plan_twist_world.linear.x)
                 # print("new linear Y", self.plan_twist_world.linear.y)
 
-                SIM.setAgentPrefVelocity(self.orca_id, (self.plan_twist_world.linear.x, self.plan_twist_world.linear.y))
+                SIM.setAgentPrefVelocity(
+                    self.orca_id,
+                    (self.plan_twist_world.linear.x, self.plan_twist_world.linear.y),
+                )
 
                 SIM.doStep()
 

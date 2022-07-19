@@ -4,7 +4,7 @@ human_1:
   loop_path: True
   planner_name: 'gbl_planner/make_plan'
   scenarios:
-    selected_id: 2 # ID to select from the goal sequence below. Starts with 0
+    initial_scene_id: 2 # ID to select from the goal sequence below. Starts with 0 which is considered as initial pose.
     goals: [ # Sequence provided by scenerio
       [[1.0, 1.0], [2.0, 2.0]],
       [[2.0, 1.0]],
@@ -15,7 +15,7 @@ human_2:
   loop_path: True
   planner_name: 'gbl_planner/make_plan'
   scenarios:
-    selected_id: 2
+    initial_scene_id: 2
     goals: [ # Sequence provided by scenerio
       [[1.0, 1.0], [2.0, 2.0]],
       [[2.0, 1.0]],
@@ -26,7 +26,7 @@ human_3:
   loop_path: True
   planner_name: 'gbl_planner/make_plan'
   scenarios:
-    selected_id: 2
+    initial_scene_id: 2
     goals: [ # Sequence provided by scenerio
       [[1.0, 1.0], [2.0, 2.0]],
       [[2.0, 1.0]],
