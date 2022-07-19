@@ -14,8 +14,7 @@ from rospkg import RosPack
 import yaml
 import random
 
-SIM = rvo2.PyRVOSimulator(1/60.0, 1.5, 3.0 , 1.5, 1.0, 0.70, 1.8) #TODO:better way to give these parameters
-
+SIM = rvo2.PyRVOSimulator(1/60.0, 1.5, 3.0 , 1.5, 1.0, 0.4, 1.8) #TODO:better way to give these parameters
 RATE_HZ = 20.0
 
 
@@ -402,12 +401,7 @@ class Human:
                 SIM.doStep()
 
                 # Get twist
-                (
-                    self.goal_twist_world.linear.x,
-                    self.goal_twist_world.linear.y,
-                ) = SIM.getAgentVelocity(
-                    self.orca_id
-                )  # Doubt send number or structure
+                self.goal_twist_world.linear.x, self.goal_twist_world.linear.y = SIM.getAgentVelocity(self.orca_id) #Doubt send number or structure
 
                 # Convert the velocity to human frame
                 self.goal_twist.linear.x = self.goal_twist_world.linear.x * math.cos(
