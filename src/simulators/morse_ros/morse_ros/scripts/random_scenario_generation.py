@@ -9,7 +9,7 @@ import tkinter as tk
 import math
 import yaml
 import numpy as np
-from geometry_msgs.msg import PoseStamped
+from geometry_msgs.msg import PoseStamped, Twist
 from inhus.msg import Goal   #check whether it got imported
 from transformations import quaternion_from_euler
 
@@ -44,15 +44,42 @@ class ScenarioCreator(SimulationHandler): #This is rvo2 simulator
     def _simulator_instance(self):
         self.sim_instance = pymorse.Morse()
 
+    def _robot_velocity_zero(self):
+        robot_vel = rospy.Publisher("/cmd_vel", Twist, queue_size=10, latch=False)
+        reset_twist = Twist()
+        print("robot reset", reset_twist)
+        robot_vel.publish(reset_twist)
+
+    def _inhus_velocity_zero(self):
+        inhus_vel = rospy.Publisher("/morse_agents/human1/cmd_vel", Twist, queue_size=10, latch=False)
+        reset_twist = Twist()
+        print("inhus reset", reset_twist)
+        inhus_vel.publish(reset_twist)
+
+    def _orca_velocity_zero(self): #TODO
+        reset_twist = Twist()
+
+        for i in range(self.total_orca_hum):
+            replacement = str(2+i)
+            topic_header = "/morse_agents/human{}".format(replacement)
+            # print("replacement", i)
+            # # topic_header.replace(topic_header[size - 2:], replacement)
+            print("topic header", topic_header)
+            orca_vel_pub = rospy.Publisher(topic_header + "/cmd_vel", Twist, queue_size=10, latch=False)
+            orca_vel_pub.publish(reset_twist)
+        pass
+
     def _simulator_reset_robot_pose(self, x, y, yaw):
+        self._robot_velocity_zero()
         self.sim_instance.rpc('simulation', 'set_object_position','pr2', [x,y,0], [0.0, 0.0, yaw])
 
     def _simulator_reset_inhus_pose(self, x, y, yaw):
+        self._inhus_velocity_zero()
         self.sim_instance.rpc('simulation', 'set_object_position','Human', [x,y,0], [0.0, 0.0, yaw])
 
     def _simulator_reset_orca_humans_pose(self, poses, yaw): #TODO:write as for loop and string match
+        self._orca_velocity_zero()
 
-        print("poses", poses[(2+1)][0], yaw[(2+1)][0])
         #ORCA human
         for i in range(self.current_num_orca_hum):
             print("i", i)
@@ -78,7 +105,7 @@ class ScenarioCreator(SimulationHandler): #This is rvo2 simulator
 
         q = quaternion_from_euler(0.0, 0.0, yaw)
 
-        print("orn quat", q)
+        # print("orn quat", q)
 
         msg.pose.orientation.x = q[0]
         msg.pose.orientation.y = q[1]
@@ -99,7 +126,7 @@ class ScenarioCreator(SimulationHandler): #This is rvo2 simulator
         self.inhus_goal_pub.publish(msg)
         pass
     def _set_orca_humans_goal_pose(self, poses, yaw):
-        print("except first 2 poses", poses[2:])
+        # print("except first 2 poses", poses[2:]) #TODO: check this
         self.goals = poses[2:]
         pass
 
@@ -132,7 +159,7 @@ class ScenarioCreator(SimulationHandler): #This is rvo2 simulator
             poses[i] = [x, y]
             yaw[i] = [yaw_current]
 
-        print("poses and yaw", poses, yaw)
+        # print("poses and yaw", poses, yaw)
         return poses, yaw
 
     def _reset_agent_start_poses(self, poses, yaw):
@@ -150,10 +177,6 @@ class ScenarioCreator(SimulationHandler): #This is rvo2 simulator
 
     @staticmethod
     def _distance_checker(init_pose, next_pose, threshold):
-        # print("check init pose datatype", init_pose)
-        # print("check init pose datatype ii", init_pose[0], init_pose[1])
-        # print("check next pose datatype", next_pose)
-        # print("check next pose datatype ii", next_pose[0], next_pose[1])
         if np.linalg.norm([
             next_pose[0] - init_pose[0],
             next_pose[1] - init_pose[1]
@@ -170,11 +193,11 @@ class ScenarioCreator(SimulationHandler): #This is rvo2 simulator
         # selected_circles = [0] * (self.total_orca_hum+2)
 
         initial_circle = random.randrange(0.0, num_circles, 1.0)
-        print("selected first circle and restricted one", initial_circle, restricted_circle)
+        # print("selected first circle and restricted one", initial_circle, restricted_circle)
 
         while (initial_circle == restricted_circle):
             initial_circle = random.randrange(0.0, num_circles, 1.0)
-            print("In loop to select unrestricted circle")
+            # print("In loop to select unrestricted circle")
 
         #generate first point
         selected_circle_radius = diameter_list[(initial_circle)]/2
@@ -191,7 +214,7 @@ class ScenarioCreator(SimulationHandler): #This is rvo2 simulator
             #if so append the list
             if(True == self._distance_checker(poses[0], centre_list[i], 5)):   #TODO: make it as macro, Less than 5 meters for check
                 selected_goal_circles.append(i)
-                print("selected list", selected_goal_circles)
+                # print("selected list", selected_goal_circles)
 
         #randomly select circles in this list
         for i in range(self.total_orca_hum+2 - 1): 
@@ -206,7 +229,7 @@ class ScenarioCreator(SimulationHandler): #This is rvo2 simulator
 
         # #dirty logic change this place
         # self.goals
-        print("goal poses and yaw", poses, yaw) #SEE HERE: START FROM here
+        # print("goal poses and yaw", poses, yaw) #SEE HERE: START FROM here
         return poses, yaw
 
     def _reset_agents_pose_in_simulator(self):
