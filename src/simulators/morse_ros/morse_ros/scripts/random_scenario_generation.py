@@ -34,8 +34,8 @@ class ScenarioCreator(SimulationHandler): #This is rvo2 simulator
         self.robot_goal_pub = rospy.Publisher("/move_base_simple/goal", PoseStamped, queue_size=10)
         self.inhus_goal_pub = rospy.Publisher("/boss/human/new_goal", Goal, queue_size=10)
 
-        for i in range(self.total_orca_hum):     # generate goals from circles
-            self.goals[i] = [(1.0 + i), 17.0]
+        # for i in range(self.total_orca_hum):     # generate goals from circles
+        #     self.goals[i] = [(1.0 + i), 17.0]
             # print("remove this soon human",i, self.goals[i]) #TODO:remove this
 
         # print("rvo2 sim no", self.total_orca_hum)
@@ -47,13 +47,11 @@ class ScenarioCreator(SimulationHandler): #This is rvo2 simulator
     def _robot_velocity_zero(self):
         robot_vel = rospy.Publisher("/cmd_vel", Twist, queue_size=10, latch=False)
         reset_twist = Twist()
-        print("robot reset", reset_twist)
         robot_vel.publish(reset_twist)
 
     def _inhus_velocity_zero(self):
         inhus_vel = rospy.Publisher("/morse_agents/human1/cmd_vel", Twist, queue_size=10, latch=False)
         reset_twist = Twist()
-        print("inhus reset", reset_twist)
         inhus_vel.publish(reset_twist)
 
     def _orca_velocity_zero(self): #TODO
@@ -64,7 +62,7 @@ class ScenarioCreator(SimulationHandler): #This is rvo2 simulator
             topic_header = "/morse_agents/human{}".format(replacement)
             # print("replacement", i)
             # # topic_header.replace(topic_header[size - 2:], replacement)
-            print("topic header", topic_header)
+            # print("topic header", topic_header)
             orca_vel_pub = rospy.Publisher(topic_header + "/cmd_vel", Twist, queue_size=10, latch=False)
             orca_vel_pub.publish(reset_twist)
         pass
@@ -159,7 +157,6 @@ class ScenarioCreator(SimulationHandler): #This is rvo2 simulator
             poses[i] = [x, y]
             yaw[i] = [yaw_current]
 
-        # print("poses and yaw", poses, yaw)
         return poses, yaw
 
     def _reset_agent_start_poses(self, poses, yaw):
@@ -177,6 +174,10 @@ class ScenarioCreator(SimulationHandler): #This is rvo2 simulator
 
     @staticmethod
     def _distance_checker(init_pose, next_pose, threshold):
+        # print("type 2 poses and generated_pose", type(init_pose), type(next_pose))
+        # print("values 2", init_pose, next_pose)
+        # print("convergence 2 x next, init", next_pose[0], init_pose[0])
+        # print("convergence 2 y next, init", next_pose[1], init_pose[1])
         if np.linalg.norm([
             next_pose[0] - init_pose[0],
             next_pose[1] - init_pose[1]
@@ -185,6 +186,79 @@ class ScenarioCreator(SimulationHandler): #This is rvo2 simulator
         else:
             return False
 
+    @staticmethod
+    def min_distance_checker(init_pose, next_pose, threshold):
+        if np.linalg.norm([
+            next_pose[0] - init_pose[0],
+            next_pose[1] - init_pose[1]
+        ]) > threshold:
+            return True
+        else:
+            return False
+
+    def _check_distance_from_remaning_coordinates(self, poses, current_index ,generated_pose):
+        total_index = len(poses)
+        # print("total index length", total_index)
+        modified_poses = poses[:current_index]
+        len_modified_poses = len(modified_poses)
+        # print("len modified list", len_modified_poses)
+        
+
+        for i in range(len_modified_poses):
+            if(True == (self._distance_checker(modified_poses[i], generated_pose[0], 4) and self.min_distance_checker(modified_poses[i], generated_pose[0], 0.5))):
+                status = True
+                # print("status true", status)
+                # print("poses", poses)
+            else:
+                status = False
+                return status
+
+        return status
+
+    def _generate_random_closer_coordinates(self, min_dist, max_dist, num_circles, diameter_list, centre_list):
+        poses = [0.0, 0.0] * (self.total_orca_hum+2)
+        # print("length")
+        yaw = [0] * (self.total_orca_hum+2)
+
+        # select a random point inside a random circle
+        initial_circle = random.randrange(0.0, num_circles, 1.0)
+        initial_circle_radius = diameter_list[(initial_circle)]/2
+        initial_circle_centre = centre_list[(initial_circle)]
+        x, y, yaw_current = self._generate_random_cartesian_cordinatines_inside_circle(initial_circle_centre, initial_circle_radius)
+        poses[0] = [x, y]
+        yaw[0] = [yaw_current]
+
+        # Logic to 1. randomly 2.select next point >= min_dist and <= max_dist
+        for i in range(self.total_orca_hum+1): #except robot
+            next_circle = random.randrange(0.0, num_circles, 1.0)
+            next_circle_radius = diameter_list[(next_circle)]/2
+            next_circle_centre = centre_list[(next_circle)]
+            x, y, yaw_current = self._generate_random_cartesian_cordinatines_inside_circle(next_circle_centre, next_circle_radius)
+
+            generated_pose = [0.0, 0.0] * (1) #change to number later
+            generated_pose[(int(0))] = [x,y]
+            # generated_pose[1] = [ 0.0, 0.0]
+            current_index = int(i+1)
+            yaw[int(current_index)] = [yaw_current]
+
+            #check distance from ramining circles
+            while not (True == self._check_distance_from_remaning_coordinates(poses, current_index, generated_pose)):
+                #repeat point generation logic
+                next_circle = random.randrange(0.0, num_circles, 1.0) #TODO: write this repeated logic as function
+                next_circle_radius = diameter_list[(next_circle)]/2
+                next_circle_centre = centre_list[(next_circle)]
+                x, y, yaw_current = self._generate_random_cartesian_cordinatines_inside_circle(next_circle_centre, next_circle_radius)
+                generated_pose[int(0)] = [x,y]
+                ("print", x, y)
+
+            # print("generate list", generated_pose[0][0], generated_pose[0][1])
+            poses[current_index] = [x, y]
+            ("outside print", x, y)
+        
+        print("All generated poses", poses, yaw)
+
+        return poses, yaw
+    
     def _select_closer_points(self, restricted_circle, num_circles, diameter_list, centre_list):
         poses = [0.0, 0.0] * (self.total_orca_hum+2)
         yaw = [0] * (self.total_orca_hum+2)
@@ -230,21 +304,27 @@ class ScenarioCreator(SimulationHandler): #This is rvo2 simulator
         # #dirty logic change this place
         # self.goals
         # print("goal poses and yaw", poses, yaw) #SEE HERE: START FROM here
+        print("old poses and yaw", poses, yaw)
         return poses, yaw
 
     def _reset_agents_pose_in_simulator(self):
         num_circles, diameter_list, centre_list = self._extract_circles_info_in_map()
 
         #logic to select unique circles
-        unique_circles_list = self._find_random_unique_list(num_circles, (self.total_orca_hum+2)) # 2 added for Robot + Inhus
-        poses, yaw = self._generate_poses_from_unique_circles(unique_circles_list, diameter_list, centre_list)
+        # unique_circles_list = self._find_random_unique_list(num_circles, (self.total_orca_hum+2)) # 2 added for Robot + Inhus
+        # poses, yaw = self._generate_poses_from_unique_circles(unique_circles_list, diameter_list, centre_list)
+        poses, yaw = self._generate_random_closer_coordinates(0.5, 5, num_circles, diameter_list, centre_list)
 
         self._reset_agent_start_poses(poses, yaw)
 
         #logic to select a point and select other points near the first point
-        poses, yaw = self._select_closer_points(unique_circles_list[0], num_circles, diameter_list, centre_list)
+        # poses, yaw = self._select_closer_points(unique_circles_list[0], num_circles, diameter_list, centre_list)
+        poses, yaw = self._generate_random_closer_coordinates(0.5, 5, num_circles, diameter_list, centre_list)
 
         self._reset_agent_goal_poses(poses, yaw)
+
+        #test the logic 
+
 
         #select robot circle
         # selected_circle = random.randrange(0.0, (num_circles), 1.0)  #starting from zero for indexing
