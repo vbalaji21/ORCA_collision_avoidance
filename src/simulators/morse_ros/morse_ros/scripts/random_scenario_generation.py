@@ -313,13 +313,13 @@ class ScenarioCreator(SimulationHandler): #This is rvo2 simulator
         #logic to select unique circles
         # unique_circles_list = self._find_random_unique_list(num_circles, (self.total_orca_hum+2)) # 2 added for Robot + Inhus
         # poses, yaw = self._generate_poses_from_unique_circles(unique_circles_list, diameter_list, centre_list)
-        poses, yaw = self._generate_random_closer_coordinates(0.75, 5, num_circles, diameter_list, centre_list) # keep it as 0.7 meters as agents human diamenter is 0.65m and robot is 0.4m
+        poses, yaw = self._generate_random_closer_coordinates(1.25, 5, num_circles, diameter_list, centre_list) # keep it as 0.7 meters as agents human diamenter is 0.65m and robot is 0.4m
 
         self._reset_agent_start_poses(poses, yaw)
 
         #logic to select a point and select other points near the first point
         # poses, yaw = self._select_closer_points(unique_circles_list[0], num_circles, diameter_list, centre_list)
-        poses, yaw = self._generate_random_closer_coordinates(0.75, 5, num_circles, diameter_list, centre_list) #
+        poses, yaw = self._generate_random_closer_coordinates(1.25, 5, num_circles, diameter_list, centre_list) #
 
         self._reset_agent_goal_poses(poses, yaw)
 
