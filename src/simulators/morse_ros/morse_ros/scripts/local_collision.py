@@ -14,8 +14,18 @@ from rospkg import RosPack
 import yaml
 import random
 
-SIM = rvo2.PyRVOSimulator(1/60.0, 1.5, 3.0 , 1.5, 1.0, 0.4, 1.8) #TODO:better way to give these parameters
+timestep = 1/60.0 
+neighborDist = 2.5 #1.5 
+maxNeighbors = 5.0 
+timeHorizon = 1.5 
+timeHorizonObst = 1.5 #1.0 
+radius = 0.4 
+maxSpeed = 1.8
+
 RATE_HZ = 20.0
+
+SIM = rvo2.PyRVOSimulator(timestep, neighborDist, maxNeighbors, timeHorizon, timeHorizonObst, radius, maxSpeed) #TODO:better way to give these parameters
+
 
 class SimulationHandler:
 
@@ -55,25 +65,20 @@ class SimulationHandler:
         rospy.sleep(2.0)
         self.rate = rospy.Rate(rate)
 
-    def reset_humans(self, num_hum):  #Write this function
+    def reset_humans(self, num_hum):  #Swapping the required human vectors in the list
         #TODO:write an assert statement to check number of humans selected is not greater than total number of humans
         assert num_hum <= self.num_hum
         self.humans = self.total_generated_humans[:num_hum]
-        # print("self.humans", self.humans)
 
     def update_inhus_pose(self, data, args):
 
         args.pose.position.x = data.pose.pose.position.x
         args.pose.position.y = data.pose.pose.position.y
 
-        # print("subscribe inhus pose ", args.pose.position.x, args.pose.position.y)
-
     def update_robot_pose(seolf, data, args):
 
         args.pose.position.x = data.pose.pose.position.x
         args.pose.position.y = data.pose.pose.position.y
-
-        # print("subscribe robot pose", args.pose.position.x, args.pose.position.y)
 
     def add_inhus_and_cohan(self):
         self.inhus_robot_id = SIM.addAgent((self.current_inhus_pose.pose.position.x, self.current_inhus_pose.pose.position.y))
@@ -85,44 +90,41 @@ class SimulationHandler:
         SIM.setAgentPosition(self.inhus_robot_id, (self.current_inhus_pose.pose.position.x, self.current_inhus_pose.pose.position.y))
         SIM.setAgentPosition(self.orca_robot_id, (self.current_robot_pose.pose.position.x, self.current_robot_pose.pose.position.y))
 
-        # print("update inhus pose ", self.current_inhus_pose.pose.position.x, self.current_inhus_pose.pose.position.y)
-        # print("update robot pose ", self.current_robot_pose.pose.position.x, self.current_robot_pose.pose.position.y)
-
-            # sim.setAgentPosition(general_database.human3_orca, (orca_human2.current_pose.pose.position.x, orca_human2.current_pose.pose.position.y))
-            # sim.setAgentPosition(database.human1_orca, (database.current_human1_pose_x, database.current_human1_pose_y))
-
 
     def add_sim_obstacles(self):
-        o1 = SIM.addObstacle([(1.5, -0.117), (5.5, -0.177), (5.5, -0.0143), (1.5, -0.0143)]) #Room 1
-        o2 = SIM.addObstacle([(5.77, 18.3), (11.0, 18.3), (11.0, 18.5), (5.77, 18.5)]) #Room 2
-        o3 = SIM.addObstacle([(7.14, 12.5), (8.34, 12.5), (8.34, 12.7), (7.14, 12.7)]) # Inter room entrance
-        # o4 = SIM.addObstacle([(6.36, 9.57), (6.57, 9.57), (6.57, 11.5), (6.36, 11.5)]) # Inter room inside entrance
+        o1 = SIM.addObstacle([(1.5, -0.117), (5.5, -0.177), (5.5, -0.0143), (1.5, -0.0143)]) #Room 1 sidewall
+        o2 = SIM.addObstacle([(5.77, 18.3), (11.0, 18.3), (11.0, 18.5), (5.77, 18.5)]) #Room 2 sidewall
+        o3 = SIM.addObstacle([(7.14, 12.5), (8.34, 12.5), (8.34, 12.7), (7.14, 12.7)]) # Inter room entrance near room 2
+        o9 = SIM.addObstacle([(6.21, 3.32), (9.52, 3.32), (9.52, 4.25), (6.21, 4.25)]) # Interroom enrance near room 1
+        o12 = SIM.addObstacle([(1.3, 4.64), (2.3, 4.64), (2.3, 12.5), (1.3, 12.5)]) #ideblocked space near interrrom
+        o14 = SIM.addObstacle([(6.4, 7.42), (6.54, 7.42)])
+        o20 = SIM.addObstacle([(6.54, 8.47), (6.4 , 8.47)])  #ideblocked space near interrrom 
+        o15 = SIM.addObstacle([(6.43, 10.9), (6.43, 9.59)]) #, (2.3, 12.5), (1.3, 12.5)]) #ideblocked space near interrrom
+        o16 = SIM.addObstacle([(7.73, 8.33), (8.36, 8.33)])
+        o17 = SIM.addObstacle([(7.73, 8.47), (8.36, 8.47)])
+        o18 = SIM.addObstacle([(4.22, 8.33), (5.45, 8.33)])
+        o19 = SIM.addObstacle([(4.22, 8.47), (5.45, 8.47)])
+        o21 = SIM.addObstacle([(4.00, 4.84), (5.45, 4.84)])
 
-        # o5 = SIM.addObstacle([(6.31, 7.4), (6.52, 7.4), (6.52, 8.55), (6.31, 8.55)]) # Inter room crossway 1
-        # o6 = SIM.addObstacle([(4.06, 8.38), (5.45, 8.38), (5.45, 8.54), (4.06, 8.54)]) # Inter room crossway 2
-        # # o7 = SIM.addObstacle([(7.66, 8.37), (8.71, 8.37), (8.71, 8.54), (7.66, 8.54)]) # Inter room crossway 3
-        # # o8 = SIM.addObstacle([(9.46, 11.2), (9.57, 11.2), (9.57, 12.6), (9.46, 12.6)]) # Inter room entrance 1
-
-
-        o9 = SIM.addObstacle([(6.21, 3.32), (9.52, 3.32), (9.52, 4.25), (6.21, 4.25)]) #Room 1
-        # o10 = SIM.addObstacle([(5.52, 4.88), (5.52, 5.59), (3.4, 5.59), (3.4, 4.88)]) #Room 2
-        # o11 = SIM.addObstacle([(1.28, 4.62), (2.32, 4.62), (2.32, 12.5), (1.28, 12.5)]) #Room 2
-
-        # k1 = SIM.processObstacles()
+        k1 = SIM.processObstacles()
 
     def run(self, scenario):
         # while not rospy.is_shutdown(): #CHECKIT: removed to run randomisation while for GUI
+        #TODO:Add a start button to give goals and take the goal giving logic out of it
         if(scenario.reset_status == True):
             i = 0
             for human in self.humans:
                 human.vel_pub.publish(human.reset_twist)
+
                 human.goals = [scenario.goals[i]]    #TODO: definitely change this dirty logic
                 i = i+1                             #TODO: definitely change this dirty logic
                 human._MAKE_NEW_PLAN = True              #Ask every human to make a new plan
-                print("human goals", human.goals)
-                print("true")
-            print("num hum in sim", scenario.current_num_orca_hum)
-            print("print human id", scenario.sim_human_id)
+
+                # clear previous visualisation path
+                human.reset_path_viz.header.frame_id = "map"
+                human.reset_path_viz.header.stamp = rospy.Time(0)
+                human.path_pub.publish(human.reset_path_viz)
+
             self.reset_humans(scenario.current_num_orca_hum)
             scenario.reset_status = False
         for human in self.humans:
@@ -181,8 +183,10 @@ class Human:
         self.goal_twist = Twist()
         self.goal_twist_world = Twist()
 
-        #reset twist (zero) before human reset
+        #reset twist (zero) and path viz before human reset
         self.reset_twist = Twist()  # Defualt value is zero, good
+        self.reset_twist = Twist()  # Defualt value is zero, good
+        self.reset_path_viz = Path()
 
         #CHECK:Additional parameters for world frame to human frame
         self.plan_twist_world = Twist()
@@ -269,18 +273,20 @@ class Human:
 
         self.plan = self.planner_service(r.start, r.goal)
 
-        # print("print self.plan", self.plan)
-        # print("print self.plan found", self.plan.plan_found)
-
-        if(self.plan.plan_found != 1):
+        # while not (self.plan.plan_found == 1):
+        #     print("Im in polanning loop", self.orca_id)
+        #     self.plan = self.planner_service(r.start, r.goal)     
+       
+        if(self.plan.plan_found == 0):
             self._MAKE_NEW_PLAN = True
+        elif(self.plan.plan_found == 1):
+            self._MAKE_NEW_PLAN = False
 
     def _compute_vel_and_orientation(self, desired_pose):
         """
         Computes velocity and orientation
         """
         # data_back = copy.deepcopy(self) #TODO: can just copy current pose and yaw
-
         self.plan_twist_world.linear.x = (desired_pose.pose.position.x - self.current_pose.pose.position.x) / (1/RATE_HZ)
         self.plan_twist_world.linear.y = (desired_pose.pose.position.y - self.current_pose.pose.position.y) / (1/RATE_HZ)
 
@@ -320,7 +326,7 @@ class Human:
 
     def update_step(self):
 
-        if self.goal_checker(self.current_pose, self.goal_pose, 0.2): # and len(self.path_list) < 2:
+        if ((self.goal_checker(self.current_pose, self.goal_pose, 0.2))): # or (self._MAKE_NEW_PLAN == False and len(self.path_list) < 2)):
             self._MAKE_NEW_PLAN = True
             self.goal_twist.linear.x = 0.0
             self.goal_twist.linear.y = 0.0
@@ -335,70 +341,84 @@ class Human:
         else: # self.current_pose != self.goal_pose:
             # Make a new plan for the next goal position
             if self.goals != [] and self._MAKE_NEW_PLAN:
-                print("hereeeee", self._MAKE_NEW_PLAN)
+                print("hereeeee flag and goal", self._MAKE_NEW_PLAN, self.goals, self.orca_id)
                 goal = self.goals[0]
                 self.set_goal(goal[0], goal[1])
                 self.make_plan()
 
                 # Process the existing plan
-                self.path_list = self.plan.path
-                self._MAKE_NEW_PLAN = False
+                if((self.plan.plan_found == 1) and (len(self.plan.path) != 0)):
+                    self.path_list = self.plan.path
+                # self._MAKE_NEW_PLAN = False
 
                 # Remove the goal that has been already planned
                 self.goals.remove(goal)
 
             try:
                 # print("diffffff here", self._MAKE_NEW_PLAN)
-                desired_pose = self.path_list[0]
-                self.path_list.remove(desired_pose)
-                self._compute_vel_and_orientation(desired_pose)
+                if(len(self.path_list) != 0):
+                    desired_pose = self.path_list[0]
+                    self.path_list.remove(desired_pose)
+                    self._compute_vel_and_orientation(desired_pose)
 
-                #Replan if it moves 1 m away from desired position in trajectory
-                if (False == self.goal_checker(self.current_pose, desired_pose, 0.3)):
-                    self.make_plan()
-                    # copy new plan
-                    self.path_list = self.plan.path
+                    #Replan if it moves 1 m away from desired position in trajectory
+                    if (False == self.goal_checker(self.current_pose, desired_pose, 0.3)):
+                        self.make_plan()
+                        # copy new plan
 
+                        if((self.plan.plan_found == 1) and (len(self.plan.path) != 0)):
+                            self.path_list = self.plan.path
 
-                # Set position and veloctiy
-                SIM.setAgentPosition(self.orca_id, (self.current_pose.pose.position.x, self.current_pose.pose.position.y))
+                    # Set position and veloctiy
+                    SIM.setAgentPosition(self.orca_id, (self.current_pose.pose.position.x, self.current_pose.pose.position.y))
 
-                # #Pertubation
-                # q = random.randrange(1.0, 10.0, 10.0)
-                # print("q", q)
-                # angle = (q) *0.1  # std::rand() * 2.0f * M_PI / RAND_MAX;
-                # dist = (q) * 0.0001 #  std::rand() * 0.0001f / RAND_MAX;
+                    SIM.setAgentPrefVelocity(self.orca_id, (self.plan_twist_world.linear.x, self.plan_twist_world.linear.y))
 
-                # print("linear x", self.plan_twist_world.linear.x)
-                # print("linear Y", self.plan_twist_world.linear.y)
-                # self.plan_twist_world.linear.x = self.plan_twist_world.linear.x + dist*math.cos(angle)
-                # self.plan_twist_world.linear.y = self.plan_twist_world.linear.y + dist*math.sin(angle)
-                # print("new linear x", self.plan_twist_world.linear.x)
-                # print("new linear Y", self.plan_twist_world.linear.y)
+                    SIM.doStep()
 
-                SIM.setAgentPrefVelocity(self.orca_id, (self.plan_twist_world.linear.x, self.plan_twist_world.linear.y))
+                    # Get twist
+                    self.goal_twist_world.linear.x, self.goal_twist_world.linear.y = SIM.getAgentVelocity(self.orca_id) #Doubt send number or structure
 
-                SIM.doStep()
+                    # Convert the velocity to human frame
+                    self.goal_twist.linear.x = self.goal_twist_world.linear.x*math.cos(self.yaw_orig_world)+ self.goal_twist_world.linear.y*math.sin(self.yaw_orig_world) #vel*math.cos(self.yaw_orig_world)
+                    self.goal_twist.linear.y = -self.goal_twist_world.linear.x*math.sin(self.yaw_orig_world)+ self.goal_twist_world.linear.y*math.cos(self.yaw_orig_world) #vel*math.sin(yaw)
 
-                # Get twist
-                self.goal_twist_world.linear.x, self.goal_twist_world.linear.y = SIM.getAgentVelocity(self.orca_id) #Doubt send number or structure
+                    self.goal_twist.angular.z = self.omega
 
-                # Convert the velocity to human frame
-                self.goal_twist.linear.x = self.goal_twist_world.linear.x*math.cos(self.yaw_orig_world)+ self.goal_twist_world.linear.y*math.sin(self.yaw_orig_world) #vel*math.cos(self.yaw_orig_world)
-                self.goal_twist.linear.y = -self.goal_twist_world.linear.x*math.sin(self.yaw_orig_world)+ self.goal_twist_world.linear.y*math.cos(self.yaw_orig_world) #vel*math.sin(yaw)
+                else:
+                    # self.vel_pub.publish(self.reset_twist) 
+                    self.goal_twist.linear.x = 0.0
+                    self.goal_twist.linear.y = 0.0
+                    self.goal_twist.angular.z = 0.0
+                    # print("reset zero cmd vel and id, length of path list", self.orca_id, len(self.path_list))
 
-                self.goal_twist.angular.z = self.omega
             except IndexError as e:
                 pass
 
-            # Send path to rviz
-            self.path.header.stamp = rospy.Time(0)
-            self.path.poses = self.plan.path
-            self.path_pub.publish(self.path)
-
+        # Send path to rviz
+        self.path.header.stamp = rospy.Time(0)
+        self.path.poses = self.path_list #self.plan.path
+        self.path_pub.publish(self.path)
         # Update cmd_vel
-        self.vel_pub.publish(self.goal_twist)
+        self.vel_pub.publish(self.goal_twist)                
 
+
+
+
+
+
+
+
+
+
+
+# #Pertubation put it inside try or just before goal_twist calculation
+# q = random.randrange(1.0, 10.0, 10.0)
+# print("q", q)
+# angle = (q) *0.1  # std::rand() * 2.0f * M_PI / RAND_MAX;
+# dist = (q) * 0.0001 #  std::rand() * 0.0001f / RAND_MAX;
+# self.plan_twist_world.linear.x = self.plan_twist_world.linear.x + dist*math.cos(angle)
+# self.plan_twist_world.linear.y = self.plan_twist_world.linear.y + dist*math.sin(angle)
 
 # def main():
 #     rospy.init_node('local_collision_avoidance')
