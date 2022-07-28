@@ -33,7 +33,8 @@ class ScenarioCreator(SimulationHandler):  # This is rvo2 simulator
             "Human.004",
         ]  # TODO:can read it from simulator itself
         self.total_orca_hum = SimulationHandler.num_hum
-        self.goals = [[0]] * (self.total_orca_hum + 2)  # TODO: this is fine
+        self.goals = [[0.0, 0.0]] * (self.total_orca_hum + 2)
+        self.NUM_GOALS = 10
 
         # Robot and Inhus publishers
         self.robot_goal_pub = rospy.Publisher(
@@ -43,11 +44,6 @@ class ScenarioCreator(SimulationHandler):  # This is rvo2 simulator
             "/boss/human/new_goal", Goal, queue_size=10
         )
 
-        # for i in range(self.total_orca_hum):     # generate goals from circles
-        #     self.goals[i] = [(1.0 + i), 17.0]
-        # print("remove this soon human",i, self.goals[i]) #TODO:remove this
-
-        # print("rvo2 sim no", self.total_orca_hum)
         self._simulator_instance()
 
     def _simulator_instance(self):
@@ -157,9 +153,8 @@ class ScenarioCreator(SimulationHandler):  # This is rvo2 simulator
         pass
 
     def _set_orca_humans_goal_pose(self, poses, yaw):
-        # print("except first 2 poses", poses[2:]) #TODO: check this
-        self.goals.append(poses[2:])
-        print("added self goals", self.goals)
+        # First two sequences are already reserved for robot and inhus
+        self.goals = poses[2:]
         pass
 
     def _extract_circles_info_in_map(self):
@@ -458,17 +453,26 @@ class ScenarioCreator(SimulationHandler):  # This is rvo2 simulator
 
         self._reset_agent_start_poses(poses, yaw)
 
-        # logic to select a point and select other points near the first point
-        poses, yaw = self._generate_random_far_coordinates(
-            start_poses=poses,
-            start_range=(1, 5),
-            agents_range=(1, 5),
-            num_circles=num_circles,
-            diameter_list=diameter_list,
-            centre_list=centre_list,
-        )
+        goals = []
+        yaws = []
+        for i in range(self.NUM_OF_GOALS):
+            goal, yaw = self._generate_random_far_coordinates(
+                start_poses=poses,
+                start_range=(1, 5),
+                agents_range=(1, 5),
+                num_circles=num_circles,
+                diameter_list=diameter_list,
+                centre_list=centre_list,
+            )
+            goals.append(goal)
+            yaws.append(yaw)
+            goals = np.array(goals).T
+            yaws = np.array(yaws).T
 
-        self._reset_agent_goal_poses(poses, yaw)
+            # current goal is next start
+            poses = goal
+
+        self._reset_agent_goal_poses(goals.tolist(), yaws.tolist())
 
     def _generate_random_cartesian_cordinatines_inside_circle(self, centre, radius):
         r = radius * math.sqrt(random.random())
