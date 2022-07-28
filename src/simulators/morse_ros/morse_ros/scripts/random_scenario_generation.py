@@ -34,6 +34,8 @@ class ScenarioCreator(SimulationHandler):  # This is rvo2 simulator
         ]  # TODO:can read it from simulator itself
         self.total_orca_hum = SimulationHandler.num_hum
         self.goals = []
+        self.robot_goals = [[1.0, 1.0]]
+        self.inhus_goals = [[1.0, 4.0]]
         self.NUM_GOALS = 10
 
         # Robot and Inhus publishers
@@ -119,7 +121,7 @@ class ScenarioCreator(SimulationHandler):  # This is rvo2 simulator
                     [0.0, 0.0, yaw],
                 )
 
-    def _set_robot_goal_pose(self, x, y, yaw):
+    def _publish_robot_goal_pose(self, x, y, yaw):
         msg = PoseStamped()
         msg.header.seq = 0
         msg.header.frame_id = "map"
@@ -140,18 +142,25 @@ class ScenarioCreator(SimulationHandler):  # This is rvo2 simulator
 
         self.robot_goal_pub.publish(msg)
 
-    def _set_inhus_goal_pose(self, x, y, yaw):
+    def _publish_inhus_goal_pose(self, x, y, yaw):
         msg = Goal()
 
         msg.type = "pose_goal"
         msg.pose_goal.pose.x = x
         msg.pose_goal.pose.y = y
-        msg.pose_goal.pose.theta = yaw
+        msg.pose_goal.pose.theta = yaw[0] # FIXME: correct the unneccessary list
 
         msg.pose_goal.radius = 0.0
 
         self.inhus_goal_pub.publish(msg)
+        print("Inhus goal deep inside")
         pass
+    
+    def _set_robot_goal_pose(self, poses, yaw):
+        self.robot_goals = poses[0]
+
+    def _set_inhus_goal_pose(self, poses, yaw):
+        self.inhus_goals = poses[1]
 
     def _set_orca_humans_goal_pose(self, poses, yaw):
         # First two sequences are already reserved for robot and inhus
@@ -201,14 +210,14 @@ class ScenarioCreator(SimulationHandler):  # This is rvo2 simulator
     def _reset_agent_start_poses(self, poses, yaw):
 
         # TODO:make all of their velocities too zero before resetting their start positions
-        # self._simulator_reset_robot_pose(poses[0][0], poses[0][1], yaw[0][0])
-        # self._simulator_reset_inhus_pose(poses[1][0], poses[1][1], yaw[1][0])
+        self._simulator_reset_robot_pose(poses[0][0], poses[0][1], yaw[0][0])
+        self._simulator_reset_inhus_pose(poses[1][0], poses[1][1], yaw[1][0])
         self._simulator_reset_orca_humans_pose(poses, yaw)
 
     def _reset_agent_goal_poses(self, poses, yaw):
         #Solvge this now
-        # self._set_robot_goal_pose(poses[0][0], poses[0][1], yaw[0][0])
-        # self._set_inhus_goal_pose(poses[1][0], poses[1][1], yaw[1][0])
+        self._set_robot_goal_pose(poses, yaw)
+        self._set_inhus_goal_pose(poses, yaw)
         self._set_orca_humans_goal_pose(poses, yaw)
 
     @staticmethod
@@ -448,7 +457,7 @@ class ScenarioCreator(SimulationHandler):  # This is rvo2 simulator
         num_circles, diameter_list, centre_list = self._extract_circles_info_in_map()
 
         poses, yaw = self._generate_random_closer_coordinates(
-            1.25, 5, num_circles, diameter_list, centre_list
+            5, 15, num_circles, diameter_list, centre_list
         )  # keep it as 0.7 meters as agents human diamenter is 0.65m and robot is 0.4m
 
         self._reset_agent_start_poses(poses, yaw)
@@ -504,14 +513,29 @@ class ScenarioCreator(SimulationHandler):  # This is rvo2 simulator
         self.gui.update()
 
     def reset(self):
-        self.current_num_orca_hum = random.randrange(
-            1.0, 5.0, 1.0
-        )  # TODO: put these numbers as macros or as variables at top to configure
+        self.current_num_orca_hum = 4 #random.randrange(
+        #     1.0, 5.0, 1.0
+        # )  # TODO: put these numbers as macros or as variables at top to configure
 
         # TODO: Do a sanitary run before or after setting poses
         # TODO: write logic for random reset position
         self._reset_agents_pose_in_simulator()
         self.reset_status = True
+
+    @staticmethod
+    def goal_checker(current_pose, goal_pose, threshold):
+        if (
+            np.linalg.norm(
+                [
+                    goal_pose.pose.position.x - current_pose.pose.position.x,
+                    goal_pose.pose.position.y - current_pose.pose.position.y,
+                ]
+            )
+            < threshold
+        ):
+            return True
+        else:
+            return False
 
 
 def main():

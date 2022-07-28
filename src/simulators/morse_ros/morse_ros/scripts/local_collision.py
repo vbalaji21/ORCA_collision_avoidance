@@ -41,6 +41,9 @@ class SimulationHandler:
         self.current_robot_pose = PoseStamped()
         self.current_inhus_pose = PoseStamped()
 
+        self.inhus_goal_pose = PoseStamped()
+        self.robot_goal_pose = PoseStamped()
+
         if config is not None:
 
             config = os.path.abspath(config)
@@ -162,7 +165,7 @@ class SimulationHandler:
                 human.vel_pub.publish(human.reset_twist)
 
                 human.goals = scenario.goals[i]
-                print("Human goals", i, human.goals)
+                # print("Human goals", i, human.goals)
                 human._MAKE_NEW_PLAN = True  # Ask every human to make a new plan
 
                 # clear previous visualisation path
@@ -179,10 +182,68 @@ class SimulationHandler:
         for human in self.humans:
             human.update_step()
             self.update_robot_and_inhus_position()
+            self.robot_step(scenario)
+            self.inhus_step(scenario)
 
         self.rate.sleep()
 
+    @staticmethod
+    def goal_checker(current_pose, goal_pose, threshold):
+        if (
+            np.linalg.norm(
+                [
+                    goal_pose.pose.position.x - current_pose.pose.position.x,
+                    goal_pose.pose.position.y - current_pose.pose.position.y,
+                ]
+            )
+            < threshold
+        ):
+            return True
+        else:
+            return False
 
+    def robot_step(self, scenario):
+        global NEXT_ROBOT_GOAL
+        if self.goal_checker(self.current_robot_pose, self.robot_goal_pose, 0.2):
+            scenario._robot_velocity_zero()
+            
+            goal_pose = scenario.robot_goals.pop(0)
+            scenario.robot_goals.append(goal_pose)
+            self.robot_goal_pose.pose.position.x = goal_pose[0]
+            self.robot_goal_pose.pose.position.y = goal_pose[1]
+            scenario._publish_robot_goal_pose(goal_pose[0], goal_pose[1], [0])
+            
+        elif(NEXT_ROBOT_GOAL == 0):
+            goal_pose = scenario.robot_goals.pop(0)
+            scenario.robot_goals.append(goal_pose)
+            self.robot_goal_pose.pose.position.x = goal_pose[0]
+            self.robot_goal_pose.pose.position.y = goal_pose[1]
+            scenario._publish_robot_goal_pose(goal_pose[0], goal_pose[1], [0])
+            NEXT_ROBOT_GOAL = 1
+
+    def inhus_step(self, scenario):
+        global NEXT_HUMAN_GOAL
+        if self.goal_checker(self.current_inhus_pose, self.inhus_goal_pose, 0.2):
+            scenario._inhus_velocity_zero()
+            
+            goal_pose = scenario.inhus_goals.pop(0)
+            scenario.inhus_goals.append(goal_pose)
+            self.inhus_goal_pose.pose.position.x = goal_pose[0]
+            self.inhus_goal_pose.pose.position.y = goal_pose[1]
+            print("next goal inhus")
+            scenario._publish_inhus_goal_pose(goal_pose[0], goal_pose[1], [0])
+
+        elif(NEXT_HUMAN_GOAL == 0):
+            print("first")
+            goal_pose = scenario.inhus_goals.pop(0)
+            scenario.inhus_goals.append(goal_pose)
+            self.inhus_goal_pose.pose.position.x = goal_pose[0]
+            self.inhus_goal_pose.pose.position.y = goal_pose[1]
+            scenario._publish_inhus_goal_pose(goal_pose[0], goal_pose[1], [0])
+            NEXT_HUMAN_GOAL = 1
+
+NEXT_ROBOT_GOAL = 0
+NEXT_HUMAN_GOAL = 0
 class Human:
 
     _MAKE_NEW_PLAN = True
