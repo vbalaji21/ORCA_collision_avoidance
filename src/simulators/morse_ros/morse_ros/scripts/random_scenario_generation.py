@@ -33,8 +33,7 @@ class ScenarioCreator(SimulationHandler):  # This is rvo2 simulator
             "Human.004",
         ]  # TODO:can read it from simulator itself
         self.total_orca_hum = SimulationHandler.num_hum
-        self.goals = [[0.0, 0.0]] * self.total_orca_hum  # TODO: this is fine
-        self.start_poses = [0.0, 0.0] * (self.total_orca_hum + 2)
+        self.goals = [[0]] * (self.total_orca_hum + 2)  # TODO: this is fine
 
         # Robot and Inhus publishers
         self.robot_goal_pub = rospy.Publisher(
@@ -159,7 +158,8 @@ class ScenarioCreator(SimulationHandler):  # This is rvo2 simulator
 
     def _set_orca_humans_goal_pose(self, poses, yaw):
         # print("except first 2 poses", poses[2:]) #TODO: check this
-        self.goals = poses[2:]
+        self.goals.append(poses[2:])
+        print("added self goals", self.goals)
         pass
 
     def _extract_circles_info_in_map(self):
@@ -264,19 +264,22 @@ class ScenarioCreator(SimulationHandler):  # This is rvo2 simulator
     def _generate_random_far_coordinates(
         self,
         start_poses,
-        start_range: tuple(float),
-        agents_range: tuple(float),
+        start_range,
+        agents_range,
         num_circles,
         diameter_list,
         centre_list,
     ):
         new_poses = []
-        new_yaw = [0] * (self.total_orca_hum + 2)
+        new_yaw = []
 
+        # print("poses", start_poses)
         for pose in start_poses:
             x, y, yaw = 0.0, 0.0, 0.0
-
+            i = 0
             while True:
+                # print("x, y, yaw and iteration ", x, y, yaw, i)
+                # i = i +1
                 # generate a random point inside a random circle
                 initial_circle = random.randrange(0.0, num_circles, 1.0)
                 initial_circle_radius = diameter_list[(initial_circle)] / 2
@@ -289,6 +292,7 @@ class ScenarioCreator(SimulationHandler):  # This is rvo2 simulator
                     initial_circle_centre, initial_circle_radius
                 )
 
+                # print("check type", pose, type(pose), type([x,y]))
                 if self._min_distance_checker(
                     pose, [x, y], start_range[0]
                 ) and self._max_distance_checker(pose, [x, y], start_range[1]):
@@ -306,20 +310,22 @@ class ScenarioCreator(SimulationHandler):  # This is rvo2 simulator
                             satisfy_agent.append(True)
                         else:
                             satisfy_agent.append(False)
+                    # print("satisfy agents", satisfy_agent, new_poses, x,y)
                     if all(satisfy_agent):
                         break
                     else:
                         continue
 
             new_poses.append([x, y])
-            new_yaw.append(yaw)
+            new_yaw.append([yaw])
 
+        print("new goal poses", new_poses)
         return new_poses, new_yaw
 
     def _generate_random_closer_coordinates(
         self, min_dist, max_dist, num_circles, diameter_list, centre_list
     ):
-        poses = [0.0, 0.0] * (self.total_orca_hum + 2)
+        poses = [0] * (self.total_orca_hum + 2)
         # print("length")
         yaw = [0] * (self.total_orca_hum + 2)
 
@@ -455,8 +461,8 @@ class ScenarioCreator(SimulationHandler):  # This is rvo2 simulator
         # logic to select a point and select other points near the first point
         poses, yaw = self._generate_random_far_coordinates(
             start_poses=poses,
-            start_range=(15, 20),
-            agents_range=(10, 15),
+            start_range=(1, 5),
+            agents_range=(1, 5),
             num_circles=num_circles,
             diameter_list=diameter_list,
             centre_list=centre_list,
