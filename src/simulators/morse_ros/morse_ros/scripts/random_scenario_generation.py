@@ -33,7 +33,7 @@ class ScenarioCreator(SimulationHandler):  # This is rvo2 simulator
             "Human.004",
         ]  # TODO:can read it from simulator itself
         self.total_orca_hum = SimulationHandler.num_hum
-        self.goals = [[0.0, 0.0]] * (self.total_orca_hum + 2)
+        self.goals = []
         self.NUM_GOALS = 10
 
         # Robot and Inhus publishers
@@ -108,7 +108,8 @@ class ScenarioCreator(SimulationHandler):  # This is rvo2 simulator
         if self.current_num_orca_hum != self.total_orca_hum:
             diff = self.total_orca_hum - self.current_num_orca_hum
             for i in range(diff):
-                # print("i, curr, total", i, self.current_num_orca_hum, self.total_orca_hum)
+                # print("i, curr, total", i
+                # , self.current_num_orca_hum, self.total_orca_hum)
                 yaw = random.uniform(math.pi, -math.pi)
                 self.sim_instance.rpc(
                     "simulation",
@@ -128,7 +129,7 @@ class ScenarioCreator(SimulationHandler):  # This is rvo2 simulator
         msg.pose.position.y = y
         msg.pose.position.z = 0
 
-        q = quaternion_from_euler(0.0, 0.0, yaw)
+        q = quaternion_from_euler(0.0, 0.0, yaw[0])
 
         # print("orn quat", q)
 
@@ -155,7 +156,6 @@ class ScenarioCreator(SimulationHandler):  # This is rvo2 simulator
     def _set_orca_humans_goal_pose(self, poses, yaw):
         # First two sequences are already reserved for robot and inhus
         self.goals = poses[2:]
-        pass
 
     def _extract_circles_info_in_map(self):
         pkg_path = RosPack().get_path("morse_ros")
@@ -201,14 +201,14 @@ class ScenarioCreator(SimulationHandler):  # This is rvo2 simulator
     def _reset_agent_start_poses(self, poses, yaw):
 
         # TODO:make all of their velocities too zero before resetting their start positions
-        self._simulator_reset_robot_pose(poses[0][0], poses[0][1], yaw[0][0])
-        self._simulator_reset_inhus_pose(poses[1][0], poses[1][1], yaw[1][0])
+        # self._simulator_reset_robot_pose(poses[0][0], poses[0][1], yaw[0][0])
+        # self._simulator_reset_inhus_pose(poses[1][0], poses[1][1], yaw[1][0])
         self._simulator_reset_orca_humans_pose(poses, yaw)
 
     def _reset_agent_goal_poses(self, poses, yaw):
-
-        self._set_robot_goal_pose(poses[0][0], poses[0][1], yaw[0][0])
-        self._set_inhus_goal_pose(poses[1][0], poses[1][1], yaw[1][0])
+        #Solvge this now
+        # self._set_robot_goal_pose(poses[0][0], poses[0][1], yaw[0][0])
+        # self._set_inhus_goal_pose(poses[1][0], poses[1][1], yaw[1][0])
         self._set_orca_humans_goal_pose(poses, yaw)
 
     @staticmethod
@@ -314,7 +314,7 @@ class ScenarioCreator(SimulationHandler):  # This is rvo2 simulator
             new_poses.append([x, y])
             new_yaw.append([yaw])
 
-        print("new goal poses", new_poses)
+        # print("new goal poses", new_poses)
         return new_poses, new_yaw
 
     def _generate_random_closer_coordinates(
@@ -374,7 +374,7 @@ class ScenarioCreator(SimulationHandler):  # This is rvo2 simulator
                     next_circle_centre, next_circle_radius
                 )
                 generated_pose[int(0)] = [x, y]
-                ("print", x, y)
+                # ("print", x, y)
 
             # print("generate list", generated_pose[0][0], generated_pose[0][1])
             poses[current_index] = [x, y]
@@ -455,24 +455,27 @@ class ScenarioCreator(SimulationHandler):  # This is rvo2 simulator
 
         goals = []
         yaws = []
-        for i in range(self.NUM_OF_GOALS):
+        for i in range(self.NUM_GOALS):
             goal, yaw = self._generate_random_far_coordinates(
                 start_poses=poses,
-                start_range=(1, 5),
-                agents_range=(1, 5),
+                start_range=(1, 10),
+                agents_range=(1, 10),
                 num_circles=num_circles,
                 diameter_list=diameter_list,
                 centre_list=centre_list,
             )
             goals.append(goal)
             yaws.append(yaw)
-            goals = np.array(goals).T
-            yaws = np.array(yaws).T
 
             # current goal is next start
             poses = goal
 
-        self._reset_agent_goal_poses(goals.tolist(), yaws.tolist())
+        goals = np.array(goals).reshape(self.total_orca_hum+2, self.NUM_GOALS, 2)
+        yaws = np.array(yaws)
+        goals = goals.tolist()
+        yaws = yaws.tolist()
+        
+        self._reset_agent_goal_poses(goals, yaws)
 
     def _generate_random_cartesian_cordinatines_inside_circle(self, centre, radius):
         r = radius * math.sqrt(random.random())
@@ -501,7 +504,6 @@ class ScenarioCreator(SimulationHandler):  # This is rvo2 simulator
         self.gui.update()
 
     def reset(self):
-        self.reset_status = True
         self.current_num_orca_hum = random.randrange(
             1.0, 5.0, 1.0
         )  # TODO: put these numbers as macros or as variables at top to configure
@@ -509,6 +511,7 @@ class ScenarioCreator(SimulationHandler):  # This is rvo2 simulator
         # TODO: Do a sanitary run before or after setting poses
         # TODO: write logic for random reset position
         self._reset_agents_pose_in_simulator()
+        self.reset_status = True
 
 
 def main():

@@ -158,14 +158,11 @@ class SimulationHandler:
         # while not rospy.is_shutdown(): #CHECKIT: removed to run randomisation while for GUI
         # TODO:Add a start button to give goals and take the goal giving logic out of it
         if scenario.reset_status == True:
-            i = 0
-            for human in self.humans:
+            for i, human in enumerate(self.humans):
                 human.vel_pub.publish(human.reset_twist)
 
-                human.goals = [
-                    scenario.goals[i]
-                ]  # TODO: definitely change this dirty logic
-                i = i + 1  # TODO: definitely change this dirty logic
+                human.goals = scenario.goals[i]
+                print("Human goals", i, human.goals)
                 human._MAKE_NEW_PLAN = True  # Ask every human to make a new plan
 
                 # clear previous visualisation path
@@ -173,8 +170,12 @@ class SimulationHandler:
                 human.reset_path_viz.header.stamp = rospy.Time(0)
                 human.path_pub.publish(human.reset_path_viz)
 
+                human._MAKE_NEW_PLAN = True  # Ask every human to make a new plan
+
             self.reset_humans(scenario.current_num_orca_hum)
             scenario.reset_status = False
+
+
         for human in self.humans:
             human.update_step()
             self.update_robot_and_inhus_position()
@@ -426,19 +427,13 @@ class Human:
 
             # If looping is enabled, reverse
             if self.loop:
-                # self.goals_bkup.reverse()
-                # self.goals = deepcopy(self.goals_bkup)
-                # self.set_goal(self.goals[0][0], self.goals[0][1])
-
-                self.goals_bkup = deepcopy(self.goals)
-                finished_goal = self.goals_bkup.pop(0)
-                self.goals_bkup.append(finished_goal)
-                self.goals = deepcopy(self.goals_bkup)
+                goal_pose = self.goals.pop(0)
+                self.goals.append(goal_pose)
+                self.set_goal(goal_pose[0], goal_pose[1])
 
         else:  # self.current_pose != self.goal_pose:
             # Make a new plan for the next goal position
             if self.goals != [] and self._MAKE_NEW_PLAN:
-                # print("hereeeee flag and goal", self._MAKE_NEW_PLAN, self.goals, self.orca_id)
                 goal = self.goals[0]
                 self.set_goal(goal[0], goal[1])
                 self.make_plan()
@@ -449,7 +444,8 @@ class Human:
                 # self._MAKE_NEW_PLAN = False
 
                 # Remove the goal that has been already planned
-                self.goals.remove(goal)
+                if not self.loop:
+                    self.goals.remove(goal)
 
             try:
                 # print("diffffff here", self._MAKE_NEW_PLAN)
