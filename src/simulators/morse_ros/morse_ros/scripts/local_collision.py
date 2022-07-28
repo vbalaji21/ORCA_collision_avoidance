@@ -334,14 +334,20 @@ class Human:
 
             # If looping is enabled, reverse
             if self.loop:
-                self.goals_bkup.reverse()
+                # self.goals_bkup.reverse()
+                # self.goals = deepcopy(self.goals_bkup)
+                # self.set_goal(self.goals[0][0], self.goals[0][1])
+
+
+                self.goals_bkup = deepcopy(self.goals)
+                finished_goal =  self.goals_bkup.pop(0)
+                self.goals_bkup.append(finished_goal)
                 self.goals = deepcopy(self.goals_bkup)
-                self.set_goal(self.goals[0][0], self.goals[0][1])
 
         else: # self.current_pose != self.goal_pose:
             # Make a new plan for the next goal position
             if self.goals != [] and self._MAKE_NEW_PLAN:
-                print("hereeeee flag and goal", self._MAKE_NEW_PLAN, self.goals, self.orca_id)
+                # print("hereeeee flag and goal", self._MAKE_NEW_PLAN, self.goals, self.orca_id)
                 goal = self.goals[0]
                 self.set_goal(goal[0], goal[1])
                 self.make_plan()

@@ -215,6 +215,16 @@ class ScenarioCreator(SimulationHandler): #This is rvo2 simulator
 
         return status
 
+    def _generate_random_far_coordinates(self, previous_poses, min_dist, max_dist, num_circles, diameter_list, centre_list):
+        prev_poses_length = len(previous_poses) 
+
+        poses = [0.0, 0.0] * (self.total_orca_hum+2)
+        yaw = [0] * (self.total_orca_hum+2)
+
+        #select_next point
+
+        # poses = 
+        pass
     def _generate_random_closer_coordinates(self, min_dist, max_dist, num_circles, diameter_list, centre_list):
         poses = [0.0, 0.0] * (self.total_orca_hum+2)
         # print("length")
