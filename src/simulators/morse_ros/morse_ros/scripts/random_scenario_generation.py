@@ -221,10 +221,20 @@ class ScenarioCreator(SimulationHandler): #This is rvo2 simulator
         poses = [0.0, 0.0] * (self.total_orca_hum+2)
         yaw = [0] * (self.total_orca_hum+2)
 
-        #select_next point
+        # generate a random point inside a random circle
+        initial_circle = random.randrange(0.0, num_circles, 1.0)
+        initial_circle_radius = diameter_list[(initial_circle)]/2
+        initial_circle_centre = centre_list[(initial_circle)]
+        x, y, yaw_current = self._generate_random_cartesian_cordinatines_inside_circle(initial_circle_centre, initial_circle_radius)
+        poses[0] = [x, y]
+        yaw[0] = [yaw_current]
 
-        # poses = 
-        pass
+        #check cordinate min and max distance from previous coordinate +  min and max distance from other agent goals
+         
+
+
+        return poses,yaw
+
     def _generate_random_closer_coordinates(self, min_dist, max_dist, num_circles, diameter_list, centre_list):
         poses = [0.0, 0.0] * (self.total_orca_hum+2)
         # print("length")
