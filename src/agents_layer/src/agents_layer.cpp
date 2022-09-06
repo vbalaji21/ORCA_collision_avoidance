@@ -129,8 +129,8 @@ void AgentsLayer::updateCosts(costmap_2d::Costmap2D& master_grid, int min_i, int
 
         if (inrad > rad)
           continue;
-        double val = 254;
-        unsigned char cvalue =   (unsigned char) val;
+        // double val = costmap_2d::LETHAL_OBSTACLE;
+        unsigned char cvalue =   costmap_2d::LETHAL_OBSTACLE; //(unsigned char) val;
         costmap->setCost(i + mx, j + my, std::max(cvalue, old_cost));
       }
     }

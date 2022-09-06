@@ -740,10 +740,17 @@ void TebVisualization::publishTrackedAgents(const cohan_msgs::TrackedAgentsConst
           arrow.scale.z = 0.05;
 
           // Set the color -- be sure to set alpha to something non-zero!
-          marker.color.r = 0.0f;
-          marker.color.g = 1.0f;
-          marker.color.b = 0.0f;
-          marker.color.a = 1.0;
+          if(i == 1) {
+            marker.color.r = 1.0f;
+            marker.color.g = 0.0f;
+            marker.color.b = 1.0f;
+            marker.color.a = 1.0;
+          } else {
+            marker.color.r = 0.0f;
+            marker.color.g = 1.0f;
+            marker.color.b = 0.0f;
+            marker.color.a = 1.0;
+          }
 
           arrow.color.r = 1.0f;
           arrow.color.g = 1.0f;
