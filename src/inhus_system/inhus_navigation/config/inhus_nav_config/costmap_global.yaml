@@ -3,9 +3,10 @@ global_costmap:
   robot_base_frame: human1/base_footprint
   update_frequency: 10.0
   publish_frequency: 10.0
-  robot_radius: 0.3
+  robot_radius: 0.5 #0.3
 
   plugins:
   - {name: static_layer, type: "costmap_2d::StaticLayer"}
   - {name: obstacle_layer, type: "costmap_2d::ObstacleLayer"}
   - {name: inflater_layer, type: "costmap_2d::InflationLayer"}
+  # - {name: agents_layer, type: "agents_layer::AgentsLayer"} # ADDED CAN BE REMOVED

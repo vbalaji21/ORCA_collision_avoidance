@@ -1127,10 +1127,10 @@ void HumanBehaviorModel::testSeeRobot()
 
 		// check if the robot is in the field of view of the human
 		// (without obstacles)
-		if(this->testFOV(robot_pose_offset, human_pose_offset, fov_))
+		if(true || this->testFOV(robot_pose_offset, human_pose_offset, fov_))
 		{
 			// check if there are obstacles blocking the human view of the robot
-			if(this->testObstacleView(human_pose_offset, robot_pose_offset))
+			if(true || this->testObstacleView(human_pose_offset, robot_pose_offset))
 			{
 				// the human sees the robot
 				//ROS_INFO("HBM: I SEE");

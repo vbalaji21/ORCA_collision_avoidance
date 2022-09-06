@@ -223,7 +223,7 @@ void Supervisor::FSM()
 									}
 
 									// Check if blocked
-									if(ros::Time::now() - last_check_ > check_freq_.expectedCycleTime())
+									/*if(ros::Time::now() - last_check_ > check_freq_.expectedCycleTime())
 									{
 										ros::spinOnce();
 										inhus::ActionBool srv;
@@ -235,7 +235,7 @@ void Supervisor::FSM()
 											global_state_ = SUSPENDED;
 										}
 										last_check_ = ros::Time::now();
-									}
+									}*/
 								}
 								break;
 						}
