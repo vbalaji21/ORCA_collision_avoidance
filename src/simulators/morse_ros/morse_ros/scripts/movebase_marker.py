@@ -20,7 +20,7 @@ orca_human2_marker_arrow = Marker()
 
 def define_inhus_marker():
     inhus_marker.header.frame_id = "/map"
-    inhus_marker.header.stamp = rospy.Time.now()
+    # inhus_marker.header.stamp = 0
 
     # set shape, Arrow: 0; Cube: 1 ; Sphere: 2 ; Cylinder: 3
     inhus_marker.type = 3
@@ -39,7 +39,7 @@ def define_inhus_marker():
 
 def define_inhus_marker_arrow():
     inhus_marker_arrow.header.frame_id = "/map"
-    inhus_marker_arrow.header.stamp = rospy.Time.now()
+    # inhus_marker_arrow.header.stamp = 0
 
     # set shape, Arrow: 0; Cube: 1 ; Sphere: 2 ; Cylinder: 3
     inhus_marker_arrow.type = 0
@@ -47,18 +47,18 @@ def define_inhus_marker_arrow():
 
     # Set the scale of the marker
     inhus_marker_arrow.scale.x = 0.6 #0.2 #0.2  # 1.938 #2.153
-    inhus_marker_arrow.scale.y = 0.1 #0.5 #0.1  # 1.20 #1.3971
-    inhus_marker_arrow.scale.z = 0.1
+    inhus_marker_arrow.scale.y = 0.05 #0.5 #0.1  # 1.20 #1.3971
+    inhus_marker_arrow.scale.z = 0.05
 
     # Set the color
     inhus_marker_arrow.color.r = 1.0
-    inhus_marker_arrow.color.g = 0.0
+    inhus_marker_arrow.color.g = 1.0
     inhus_marker_arrow.color.b = 0.0
     inhus_marker_arrow.color.a = 1.0
 
 def define_orca1_marker():
     orca_human1_marker.header.frame_id = "/map"
-    orca_human1_marker.header.stamp = rospy.Time.now()
+    # orca_human1_marker.header.stamp = rospy.Time.now()
 
     # set shape, Arrow: 0; Cube: 1 ; Sphere: 2 ; Cylinder: 3
     orca_human1_marker.type = 3
@@ -77,7 +77,7 @@ def define_orca1_marker():
 
 def define_orca1_marker_arrow():
     orca_human1_marker_arrow.header.frame_id = "/map"
-    orca_human1_marker_arrow.header.stamp = rospy.Time.now()
+    # orca_human1_marker_arrow.header.stamp = rospy.Time.now()
 
     # set shape, Arrow: 0; Cube: 1 ; Sphere: 2 ; Cylinder: 3
     orca_human1_marker_arrow.type = 0
@@ -85,19 +85,19 @@ def define_orca1_marker_arrow():
 
     # Set the scale of the marker
     orca_human1_marker_arrow.scale.x = 0.6
-    orca_human1_marker_arrow.scale.y = 0.1
-    orca_human1_marker_arrow.scale.z = 0.1
+    orca_human1_marker_arrow.scale.y = 0.05
+    orca_human1_marker_arrow.scale.z = 0.05
 
     # Set the color
-    orca_human1_marker_arrow.color.r = 0.0
-    orca_human1_marker_arrow.color.g = 0.0
-    orca_human1_marker_arrow.color.b = 1.0
+    orca_human1_marker_arrow.color.r = 1.0
+    orca_human1_marker_arrow.color.g = 1.0
+    orca_human1_marker_arrow.color.b = 0.0
     orca_human1_marker_arrow.color.a = 1.0
 
 
 def define_orca2_marker():
     orca_human2_marker.header.frame_id = "/map"
-    orca_human2_marker.header.stamp = rospy.Time.now()
+    # orca_human2_marker.header.stamp = rospy.Time.now()
 
     # set shape, Arrow: 0; Cube: 1 ; Sphere: 2 ; Cylinder: 3
     orca_human2_marker.type = 3
@@ -116,7 +116,7 @@ def define_orca2_marker():
 
 def define_orca2_marker_arrow():
     orca_human2_marker_arrow.header.frame_id = "/map"
-    orca_human2_marker_arrow.header.stamp = rospy.Time.now()
+    # orca_human2_marker_arrow.header.stamp = rospy.Time.now()
 
     # set shape, Arrow: 0; Cube: 1 ; Sphere: 2 ; Cylinder: 3
     orca_human2_marker_arrow.type = 0
@@ -124,13 +124,13 @@ def define_orca2_marker_arrow():
 
     # Set the scale of the marker
     orca_human2_marker_arrow.scale.x = 0.6
-    orca_human2_marker_arrow.scale.y = 0.1
-    orca_human2_marker_arrow.scale.z = 0.1
+    orca_human2_marker_arrow.scale.y = 0.05
+    orca_human2_marker_arrow.scale.z = 0.05
 
     # Set the color
-    orca_human2_marker_arrow.color.r = 0.0
-    orca_human2_marker_arrow.color.g = 0.0
-    orca_human2_marker_arrow.color.b = 1.0
+    orca_human2_marker_arrow.color.r = 1.0
+    orca_human2_marker_arrow.color.g = 1.0
+    orca_human2_marker_arrow.color.b = 0.0
     orca_human2_marker_arrow.color.a = 1.0
 
 
@@ -145,9 +145,12 @@ def inhus_callback(data, args):
     args.pose.orientation.w = data.pose.pose.orientation.w
 
 def inhus_arrow_callback(data, args):
+    args.pose.position.x = data.pose.pose.position.x
+    args.pose.position.y = data.pose.pose.position.y
+    args.pose.position.z = data.pose.pose.position.z
 
-    # args.pose.orientation.x = data.pose.pose.orientation.x
-    # args.pose.orientation.y = data.pose.pose.orientation.y
+    args.pose.orientation.x = data.pose.pose.orientation.x
+    args.pose.orientation.y = data.pose.pose.orientation.y
     args.pose.orientation.z = data.pose.pose.orientation.z
     args.pose.orientation.w = data.pose.pose.orientation.w
 
@@ -162,9 +165,12 @@ def orca_human1_callback(data, args):
     args.pose.orientation.w = data.pose.pose.orientation.w
 
 def orca_human1_arrow_callback(data, args):
+    args.pose.position.x = data.pose.pose.position.x
+    args.pose.position.y = data.pose.pose.position.y
+    args.pose.position.z = data.pose.pose.position.z
 
-    # args.pose.orientation.x = data.pose.pose.orientation.x
-    # args.pose.orientation.y = data.pose.pose.orientation.y
+    args.pose.orientation.x = data.pose.pose.orientation.x
+    args.pose.orientation.y = data.pose.pose.orientation.y
     args.pose.orientation.z = data.pose.pose.orientation.z
     args.pose.orientation.w = data.pose.pose.orientation.w
 
@@ -179,9 +185,12 @@ def orca_human2_callback(data, args):
     args.pose.orientation.w = data.pose.pose.orientation.w
 
 def orca_human2_arrow_callback(data, args):
+    args.pose.position.x = data.pose.pose.position.x
+    args.pose.position.y = data.pose.pose.position.y
+    args.pose.position.z = data.pose.pose.position.z
 
-    # args.pose.orientation.x = data.pose.pose.orientation.x
-    # args.pose.orientation.y = data.pose.pose.orientation.y
+    args.pose.orientation.x = data.pose.pose.orientation.x
+    args.pose.orientation.y = data.pose.pose.orientation.y
     args.pose.orientation.z = data.pose.pose.orientation.z
     args.pose.orientation.w = data.pose.pose.orientation.w
 
@@ -210,9 +219,8 @@ def main():
     sub3 = rospy.Subscriber("/morse_agents/human3/odom", Odometry, orca_human2_callback, orca_human2_marker)
 
     sub11 = rospy.Subscriber("/morse_agents/human1/odom", Odometry, inhus_arrow_callback, inhus_marker_arrow)
-    sub22 = rospy.Subscriber("/morse_agents/human1/odom", Odometry, orca_human1_arrow_callback, orca_human1_marker_arrow)
-    sub33 = rospy.Subscriber("/morse_agents/human1/odom", Odometry, orca_human2_arrow_callback, orca_human2_marker_arrow)
-
+    sub22 = rospy.Subscriber("/morse_agents/human2/odom", Odometry, orca_human1_arrow_callback, orca_human1_marker_arrow)
+    sub33 = rospy.Subscriber("/morse_agents/human3/odom", Odometry, orca_human2_arrow_callback, orca_human2_marker_arrow)
 
     while not rospy.is_shutdown():
         inhus_marker_pub.publish(inhus_marker)

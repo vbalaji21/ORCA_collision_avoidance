@@ -13,6 +13,8 @@ from rospkg import RosPack
 from transformations import quaternion_from_euler
 
 from local_collision import SimulationHandler
+import message_filters
+from cohan_msgs.msg import AgentMarkerStamped, TrackedAgents
 
 RATE_HZ = 20.0  # TODO:put this in a proper place, eg:- Inside simulator class
 
@@ -31,11 +33,12 @@ class ScenarioCreator(SimulationHandler):  # This is rvo2 simulator
             "Human.002",
             "Human.003",
             "Human.004",
+            "Human.005",
         ]  # TODO:can read it from simulator itself
         self.total_orca_hum = SimulationHandler.num_hum
         self.goals = []
-        self.robot_goals = [[1.0, 1.0]]
-        self.inhus_goals = [[1.0, 4.0]]
+        self.robot_goals = [[8.5, 11.4], [5.2, 22.0]] # doorway crossing - [[6.0, 22.2], [5.5, 14.6]] # diamond - [[2.0, 15.5], [6.0, 15.5]] # squad - [[1.0, 16.0], [10.5, 16.0]] #free space - [[6.0, 17.6], [5.75, 13.4]] # corridor - [[10.4, 1.9], [10.4, 13.5]] #, [10.2, 15.0]] #orca EXPERIMENT - [[1.0, -2.5]]
+        self.inhus_goals = [[2.5, -2.5]] # [[10.2, 15.0]] - wide corridor scenario #, [10.2, 1.9]] #orca EXPERIMENT - [[3.0, -2.5]]
         self.NUM_GOALS = 10
 
         # Robot and Inhus publishers
@@ -153,7 +156,7 @@ class ScenarioCreator(SimulationHandler):  # This is rvo2 simulator
         msg.pose_goal.radius = 0.0
 
         self.inhus_goal_pub.publish(msg)
-        print("Inhus goal deep inside")
+        # print("Inhus goal deep inside")
         pass
     
     def _set_robot_goal_pose(self, poses, yaw):
@@ -457,7 +460,7 @@ class ScenarioCreator(SimulationHandler):  # This is rvo2 simulator
         num_circles, diameter_list, centre_list = self._extract_circles_info_in_map()
 
         poses, yaw = self._generate_random_closer_coordinates(
-            5, 15, num_circles, diameter_list, centre_list
+            4, 29, num_circles, diameter_list, centre_list
         )  # keep it as 0.7 meters as agents human diamenter is 0.65m and robot is 0.4m
 
         self._reset_agent_start_poses(poses, yaw)
@@ -467,8 +470,8 @@ class ScenarioCreator(SimulationHandler):  # This is rvo2 simulator
         for i in range(self.NUM_GOALS):
             goal, yaw = self._generate_random_far_coordinates(
                 start_poses=poses,
-                start_range=(1, 10),
-                agents_range=(1, 10),
+                start_range=(4.5, 29),
+                agents_range=(3, 29),
                 num_circles=num_circles,
                 diameter_list=diameter_list,
                 centre_list=centre_list,
@@ -547,14 +550,13 @@ def main():
         rate=RATE_HZ,
         debug=False,
     )
-
     scenario = ScenarioCreator(simulator)
     scenario.gui_create(simulator)
-
     # try:
     while True:
         scenario.gui_update()
         simulator.run(scenario)
+        # subscribe_and_publish(scenario)
     # finally:
     #     pass
 

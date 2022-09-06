@@ -8,8 +8,8 @@ footprint: [[-0.325, -0.325], [-0.325, 0.325], [0.325, 0.325], [0.46, 0.0], [0.3
 plugins:
   - {name: static_map, type: "costmap_2d::StaticLayer"}
   - {name: inflater, type: "costmap_2d::InflationLayer"}
-  - {name: humans_layer, type: "agents_layer::AgentsLayer"}
-  - {name: humans_lay, type: "cohan_layers::StaticAgentLayer"}
+  - {name: agents_layer, type: "agents_layer::AgentsLayer"}
+  - {name: human_static_layer, type: "cohan_layers::StaticAgentLayer"}
 
 obstacles:
   observation_sources: base_scan_filtered
@@ -17,7 +17,7 @@ obstacles:
   footprint_clearing_enabled: true
   track_unknown_space: true
 inflater:
-  inflation_radius: 0.2
+  inflation_radius: 0.55 #0.2
 static_map:
   enabled:              true
-  map_topic:            "/map"
+  map_topic:            "/map" # for move_base robot "smb/map" and for cohan "/map"

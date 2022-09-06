@@ -26,19 +26,19 @@ def main():
     marker.id = 0
 
     # Set the scale of the marker
-    marker.scale.x = 1.0  # 1.938 #2.153
-    marker.scale.y = 0.6  # 1.20 #1.3971
+    marker.scale.x = 0.5 #0.2 #0.2  # 1.938 #2.153
+    marker.scale.y = 0.5 #0.5 #0.1  # 1.20 #1.3971
     marker.scale.z = 0.6
 
     # Set the color
     marker.color.r = 1.0
-    marker.color.g = 0.0
+    marker.color.g = 1.0
     marker.color.b = 0.0
     marker.color.a = 1.0
 
     # Set the pose of the marker
-    marker.pose.position.x = 8.5  # 1.131 #1.1765
-    marker.pose.position.y = -1.48  # 2.27  #0.7485
+    marker.pose.position.x = 5.64 #8.5  # 1.131 #1.1765
+    marker.pose.position.y = 15.6 #-1.48 #-1.48  # 2.27  #0.7485
     marker.pose.position.z = 0
     marker.pose.orientation.x = 0.0
     marker.pose.orientation.y = 0.0

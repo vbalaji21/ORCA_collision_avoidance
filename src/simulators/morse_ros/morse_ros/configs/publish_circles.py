@@ -3,7 +3,7 @@ import rospy
 from visualization_msgs.msg import Marker, MarkerArray
 
 with open('laas_adream.yaml', 'r') as file:
-  document = yaml.load(file)
+  document = yaml.safe_load(file)
 
 rospy.init_node('publish_centers')
 pub_ = rospy.Publisher('centers', MarkerArray, queue_size = 1)
@@ -20,7 +20,7 @@ while not rospy.is_shutdown():
     marker.pose.position.x = document['centers'][i][0]
     marker.pose.position.y = document['centers'][i][1]
     marker.pose.position.z = 0.0
-    t = rospy.Duration(0.2)
+    t = rospy.Duration(5.2)
     marker.lifetime = t
     marker.scale.x = document['radii'][i]
     marker.scale.y = document['radii'][i]

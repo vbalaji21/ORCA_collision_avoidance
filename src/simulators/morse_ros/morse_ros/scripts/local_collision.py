@@ -4,7 +4,7 @@ import os
 import rospy
 from navfn.srv import MakeNavPlan
 from nav_msgs.msg import Odometry, Path
-from geometry_msgs.msg import PoseStamped, Twist
+from geometry_msgs.msg import PoseStamped, Twist, Pose2D
 import rvo2
 from transformations import euler_from_quaternion
 import math
@@ -13,20 +13,26 @@ import numpy as np
 from rospkg import RosPack
 import yaml
 import random
+import timer
+import threading
+from math import pow
+# from random_scenario_generation import simulator
 
 timestep = 1 / 60.0
-neighborDist = 2.5  # 1.5
-maxNeighbors = 5.0
-timeHorizon = 1.5
-timeHorizonObst = 1.5  # 1.0
-radius = 0.4
-maxSpeed = 1.8
+neighborDist = 4.0 #100.5  # 1.5
+maxNeighbors = 10.0
+timeHorizon = 5.0
+timeHorizonObst = 5.0  # 1.0
+radius = 0.32
+maxSpeed = 2.1 # 1.8
 
 RATE_HZ = 20.0
 
 SIM = rvo2.PyRVOSimulator(
     timestep, neighborDist, maxNeighbors, timeHorizon, timeHorizonObst, radius, maxSpeed
 )  # TODO:better way to give these parameters
+
+
 
 
 class SimulationHandler:
@@ -40,6 +46,7 @@ class SimulationHandler:
         self.inhus_robot_id = None
         self.current_robot_pose = PoseStamped()
         self.current_inhus_pose = PoseStamped()
+        self.robot_x_vel = Twist()
 
         self.inhus_goal_pose = PoseStamped()
         self.robot_goal_pose = PoseStamped()
@@ -57,6 +64,7 @@ class SimulationHandler:
                 "Expected a valid configurations. Received {}".format(config)
             )
 
+        self.humans_num = self.num_hum #remove it later
         self.total_generated_humans = [
             Human(i, self.config, self.debug) for i in range(self.num_hum)
         ]
@@ -72,6 +80,9 @@ class SimulationHandler:
         )
         rospy.Subscriber(
             "/odom", Odometry, self.update_robot_pose, self.current_robot_pose
+        )
+        rospy.Subscriber(
+            "/odom", Odometry, self.update_robot_vel, self.robot_x_vel
         )
 
         self.add_inhus_and_cohan()
@@ -90,10 +101,14 @@ class SimulationHandler:
         args.pose.position.x = data.pose.pose.position.x
         args.pose.position.y = data.pose.pose.position.y
 
-    def update_robot_pose(seolf, data, args):
+    def update_robot_pose(self, data, args):
 
         args.pose.position.x = data.pose.pose.position.x
         args.pose.position.y = data.pose.pose.position.y
+
+    def update_robot_vel(self, data, args):
+
+        args.linear.x = data.twist.twist.linear.x
 
     def add_inhus_and_cohan(self):
         self.inhus_robot_id = SIM.addAgent(
@@ -102,12 +117,7 @@ class SimulationHandler:
                 self.current_inhus_pose.pose.position.y,
             )
         )
-        self.orca_robot_id = SIM.addAgent(
-            (
-                self.current_robot_pose.pose.position.x,
-                self.current_robot_pose.pose.position.y,
-            )
-        )
+        self.orca_robot_id = SIM.addAgent((self.current_robot_pose.pose.position.x, self.current_robot_pose.pose.position.y), neighborDist, maxNeighbors, timeHorizon, timeHorizonObst, 0.45 , maxSpeed, (0, 0))
 
     def update_robot_and_inhus_position(self):
 
@@ -140,7 +150,7 @@ class SimulationHandler:
             [(6.21, 3.32), (9.52, 3.32), (9.52, 4.25), (6.21, 4.25)]
         )  # Interroom enrance near room 1
         o12 = SIM.addObstacle(
-            [(1.3, 4.64), (2.3, 4.64), (2.3, 12.5), (1.3, 12.5)]
+            [(1.24, 4.64), (2.3, 4.64), (2.3, 12.5), (1.24, 12.5)]
         )  # ideblocked space near interrrom
         o14 = SIM.addObstacle([(6.4, 7.42), (6.54, 7.42)])
         o20 = SIM.addObstacle(
@@ -155,6 +165,38 @@ class SimulationHandler:
         o19 = SIM.addObstacle([(4.22, 8.47), (5.45, 8.47)])
         o21 = SIM.addObstacle([(4.00, 4.84), (5.45, 4.84)])
 
+        o22 = SIM.addObstacle(
+            [(-0.772, 4.64), (0.122, 4.64), (0.122, 12.5), (-0.772, 12.5)]
+        )
+        o23 = SIM.addObstacle(
+            [(-0.772, 4.64), (0.122, 4.64), (0.122, 12.5), (-0.772, 12.5)]
+        ) 
+
+        o24 = SIM.addObstacle(
+            [(8.68, 4.19), (9.52, 4.19), (9.52, 7.43), (8.68, 7.43)]
+        )
+        o25 = SIM.addObstacle(
+            [(8.73, 7.44), (9.46, 7.44), (9.46, 8.38), (8.73, 8.38)]
+        ) 
+        o26 = SIM.addObstacle(
+            [(8.73, 8.38), (9.58, 8.38), (9.58, 8.47), (8.73, 8.47)]
+        ) 
+        o27 = SIM.addObstacle([(9.58, 8.47), (9.58, 12.6)]) 
+        o28 = SIM.addObstacle([(10.9, 8.23), (11.6, 8.23), (11.6, 8.67), (10.9, 8.67)])
+        o29 = SIM.addObstacle([(10.9, 3.22), (11.6, 3.22), (11.6, 3.66), (10.9, 3.66)]) 
+        o30 = SIM.addObstacle([(10.9, 13.2), (11.6, 13.2), (11.6, 13.6), (10.9, 13.6)]) 
+        o31 = SIM.addObstacle([(11.5, 8.67), (11.5, 13.2)])
+        o32 = SIM.addObstacle([(11.5, 3.66), (11.5, 8.22)])
+
+        o33 = SIM.addObstacle([(5.72, 18.3), (7.65, 18.3), (7.65, 18.5), (5.72, 18.5)])
+        o34 = SIM.addObstacle([(4.36, 18.3), (4.36, 18.5), (4.26, 18.5), (4.26, 18.3)])
+        o35 = SIM.addObstacle([(3.2, 18.3), (4.25, 18.3), (4.25, 18.4), (3.2, 18.4)])
+        o36 = SIM.addObstacle([(4.25, 18.5), (4.25, 20.0), (4.2, 20.0), (4.2, 18.5)])
+        # o33 = SIM.addObstacle([(3.39, 15.1), (3.89, 15.1), (3.89, 16.1), (3.39, 16.1)]) # big obstacle
+        # o33 = SIM.addObstacle([(5.39, 15.1), (5.89, 15.1), (5.89, 16.1), (5.39, 16.1)]) # big obstacle
+        # o34 = SIM.addObstacle([(3.39, 15.35), (3.89, 15.35), (3.89, 15.85), (3.39, 15.85)]) #small obstacle displaced as well for TAuO 1.5 seconds
+  
+
         k1 = SIM.processObstacles()
 
     def run(self, scenario):
@@ -168,10 +210,10 @@ class SimulationHandler:
                 # print("Human goals", i, human.goals)
                 human._MAKE_NEW_PLAN = True  # Ask every human to make a new plan
 
-                # clear previous visualisation path
-                human.reset_path_viz.header.frame_id = "map"
-                human.reset_path_viz.header.stamp = rospy.Time(0)
-                human.path_pub.publish(human.reset_path_viz)
+                # # clear previous visualisation path
+                # human.reset_path_viz.header.frame_id = "map"
+                # human.reset_path_viz.header.stamp = rospy.Time(0)
+                # human.path_pub.publish(human.reset_path_viz)
 
                 human._MAKE_NEW_PLAN = True  # Ask every human to make a new plan
 
@@ -180,7 +222,7 @@ class SimulationHandler:
 
 
         for human in self.humans:
-            human.update_step()
+            human.update_step(self)
             self.update_robot_and_inhus_position()
             self.robot_step(scenario)
             self.inhus_step(scenario)
@@ -230,11 +272,11 @@ class SimulationHandler:
             scenario.inhus_goals.append(goal_pose)
             self.inhus_goal_pose.pose.position.x = goal_pose[0]
             self.inhus_goal_pose.pose.position.y = goal_pose[1]
-            print("next goal inhus")
+            # print("next goal inhus")
             scenario._publish_inhus_goal_pose(goal_pose[0], goal_pose[1], [0])
 
         elif(NEXT_HUMAN_GOAL == 0):
-            print("first")
+            # print("first")
             goal_pose = scenario.inhus_goals.pop(0)
             scenario.inhus_goals.append(goal_pose)
             self.inhus_goal_pose.pose.position.x = goal_pose[0]
@@ -255,6 +297,7 @@ class Human:
         self.current_yaw = 0.0
 
         self.debug = debug
+        self.retain_complete_path_viz = []
 
         if config is not None:
 
@@ -274,6 +317,17 @@ class Human:
         # Load configs
         self.get_configs()
 
+        # Setup current pose message
+        self.current_pose = PoseStamped()
+        self.current_pose.header.frame_id = "map"
+
+        # Setup goal messages
+        self.goal_pose = PoseStamped()
+        self.goal_pose.header.frame_id = "map"
+        self.goal_twist = Twist()
+        self.goal_twist_world = Twist()
+        self.before_orca_goal_twist_local = Twist()
+
         # ID is started from 1. There is a default Inhus Human with id 1
         topic_header = "/morse_agents/human{}".format(self.id + 2)
 
@@ -286,28 +340,41 @@ class Human:
         self.path_pub = rospy.Publisher(
             topic_header + "/path_viz", Path, queue_size=600
         )
+
+        self.robot_human_dist_pub = rospy.Publisher(
+            topic_header + "/robot_human_dist", Pose2D, queue_size=600
+        )
+
+        self.executed_path_pub = rospy.Publisher(
+            topic_header + "/executed_path_viz", Path, queue_size=600
+        )
+
+        self.vel_before_orca_pub = rospy.Publisher(
+            topic_header + "/vel_before_orca", Twist, queue_size=600
+        )
+
         self.vel_pub = rospy.Publisher(
             topic_header + "/cmd_vel", Twist, queue_size=10, latch=False
         )
 
+        self.orca_vel_pub = rospy.Publisher("/orca_vel", Twist, queue_size=10, latch=False)
+
         # Setup path message
         self.path = Path()
-        self.path.header.frame_id = "map"
+        self.path.header.frame_id = "/map"
+        self.path.header.stamp = rospy.Time(0)
 
-        # Setup current pose message
-        self.current_pose = PoseStamped()
-        self.current_pose.header.frame_id = "map"
-
-        # Setup goal messages
-        self.goal_pose = PoseStamped()
-        self.goal_pose.header.frame_id = "map"
-        self.goal_twist = Twist()
-        self.goal_twist_world = Twist()
+        # visualise taken path message
+        self.executed_path = Path()
+        self.executed_path.header.frame_id = "/map"
+        self.executed_path.header.stamp = rospy.Time(0)
 
         # reset twist (zero) and path viz before human reset
         self.reset_twist = Twist()  # Defualt value is zero, good
         self.reset_twist = Twist()  # Defualt value is zero, good
-        self.reset_path_viz = Path()
+
+        self.hr_dist = Pose2D()
+        # self.reset_path_viz = Path()
 
         # CHECK:Additional parameters for world frame to human frame
         self.plan_twist_world = Twist()
@@ -328,6 +395,7 @@ class Human:
         self.planner_service = rospy.ServiceProxy(self.planner_name, MakeNavPlan)
         self.plan = None
         self.path_list = []
+        self.executed_path_list = []
 
         # Finally, setup ORCA
         self.add_to_orca()
@@ -414,6 +482,8 @@ class Human:
 
         self.plan = self.planner_service(r.start, r.goal)
 
+        # print("self.plan type", type(self.plan))
+
         # while not (self.plan.plan_found == 1):
         #     print("Im in polanning loop", self.orca_id)
         #     self.plan = self.planner_service(r.start, r.goal)
@@ -447,7 +517,7 @@ class Human:
         omega = self.normalize_theta(self.yaw_orig_world - self.current_yaw) / (
             1 / RATE_HZ
         )
-        self.omega = self.clamp(omega, -12.5, 12.5)
+        self.omega = self.clamp(omega, -21.5, 21.5) #-12.5, 12.5)
 
     @staticmethod
     def normalize_theta(theta):
@@ -476,11 +546,17 @@ class Human:
     def clamp(x, minn, maxx):
         return x if x > minn and x < maxx else (minn if x < minn else maxx)
 
-    def update_step(self):
+    def update_step(self, simulator):
+
+                    # self.vel_pub.publish(self.reset_twist)
+        self.hr_dist.x = math.sqrt((math.pow((self.current_pose.pose.position.x -  simulator.current_robot_pose.pose.position.x) , 2)) + (math.pow((self.current_pose.pose.position.y - simulator.current_robot_pose.pose.position.y) , 2)))
+        self.hr_dist.y = (simulator.robot_x_vel.linear.x / self.hr_dist.x)     # human pycological impact factor
+        self.hr_dist.theta = 0
+        self.robot_human_dist_pub.publish(self.hr_dist)
 
         if self.goal_checker(
-            self.current_pose, self.goal_pose, 0.2
-        ):  # or (self._MAKE_NEW_PLAN == False and len(self.path_list) < 2)):
+            self.current_pose, self.goal_pose, 0.3
+        ) and (False == self._MAKE_NEW_PLAN):  # or (self._MAKE_NEW_PLAN == False and len(self.path_list) < 2)):
             self._MAKE_NEW_PLAN = True
             self.goal_twist.linear.x = 0.0
             self.goal_twist.linear.y = 0.0
@@ -492,6 +568,10 @@ class Human:
                 self.goals.append(goal_pose)
                 self.set_goal(goal_pose[0], goal_pose[1])
 
+                self.goals_bkup.reverse()
+                self.goals = deepcopy(self.goals_bkup)
+                self.set_goal(self.goals[0][0], self.goals[0][1])
+
         else:  # self.current_pose != self.goal_pose:
             # Make a new plan for the next goal position
             if self.goals != [] and self._MAKE_NEW_PLAN:
@@ -501,7 +581,14 @@ class Human:
 
                 # Process the existing plan
                 if (self.plan.plan_found == 1) and (len(self.plan.path) != 0):
+                    # print("problem 2", self.id)
                     self.path_list = self.plan.path
+
+                    #Done to visualise planned path without clearing it
+                    self.retain_complete_path_viz = self.plan.path
+                    self.path.poses = self.retain_complete_path_viz # self.path_list - deletes path as it travels  # self.plan.path
+
+                    self.path_pub.publish(self.path)
                 # self._MAKE_NEW_PLAN = False
 
                 # Remove the goal that has been already planned
@@ -515,7 +602,7 @@ class Human:
                     self.path_list.remove(desired_pose)
                     self._compute_vel_and_orientation(desired_pose)
 
-                    # Replan if it moves 1 m away from desired position in trajectory
+                    # uncomment for replanning, Replan if it moves 1 m away from desired position in trajectory
                     if False == self.goal_checker(self.current_pose, desired_pose, 0.3):
                         self.make_plan()
                         # copy new plan
@@ -542,6 +629,10 @@ class Human:
 
                     SIM.doStep()
 
+                    self.before_orca_goal_twist_local.linear.x = (self.plan_twist_world.linear.x) 
+
+                    self.before_orca_goal_twist_local.linear.y = (self.plan_twist_world.linear.y) 
+
                     # Get twist
                     (
                         self.goal_twist_world.linear.x,
@@ -567,17 +658,46 @@ class Human:
                     self.goal_twist.linear.x = 0.0
                     self.goal_twist.linear.y = 0.0
                     self.goal_twist.angular.z = 0.0
+
+                    if self.goal_checker(self.current_pose, self.goal_pose, 0.3):
+                       self._MAKE_NEW_PLAN = True 
                     # print("reset zero cmd vel and id, length of path list", self.orca_id, len(self.path_list))
 
             except IndexError as e:
                 pass
 
         # Send path to rviz
-        self.path.header.stamp = rospy.Time(0)
-        self.path.poses = self.path_list  # self.plan.path
-        self.path_pub.publish(self.path)
+
+        # self.path.poses = self.retain_complete_path_viz # self.path_list - deletes path as it travels  # self.plan.path
+        # self.path_pub.publish(self.path)
         # Update cmd_vel
+
+        # for ii in xrange(20):
+        #     loc = Pose()#moved in to for loop
+        #     loc.position.x = ii
+        #     loc.position.y = 2*ii  
+        #     loc.position.z = 0
+        # self.takenpath.append(self.current_pose.pose.position)
+        a = PoseStamped()
+        a.header.frame_id = "map"
+        a.header.stamp = rospy.Time(0)
+        a.pose = self.current_pose.pose
+        self.executed_path_list.append(a)
+
+        self.executed_path.poses = self.executed_path_list
+
+        # print("self.executed_path", self.executed_path)
+        # print("new values", self.executed_path.poses)
+        self.executed_path.header.stamp = rospy.Time(0)
+        self.executed_path.header.frame_id = "/map"
+
+        # print("executed path poses", self.executed_path)
+        self.executed_path_pub.publish(self.executed_path)
+
+        self.vel_before_orca_pub.publish(self.before_orca_goal_twist_local)
         self.vel_pub.publish(self.goal_twist)
+
+        self.orca_vel_pub.publish(self.goal_twist_world)
 
 
 # #Pertubation put it inside try or just before goal_twist calculation

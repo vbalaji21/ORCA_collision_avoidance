@@ -1,0 +1,56 @@
+
+*** These modified files were found in JOE when it aborted on Wed Jul 27 18:06:39 2022
+*** JOE was aborted because the terminal closed
+
+*** File '/home/vvigneshba/ros_ws/InHuS_Social_Navigation/.git/COMMIT_EDITMSG'
+#
+# Committer: Vijayan Vignesh-Balaji <vvigneshba@esparrou.laas.fr>
+#
+# On branch random_scenario_generation
+# Changes to be committed:
+#	modified:   random_scenario_generation.py
+#
+# Changes not staged for commit:
+#	modified:   ../../../../agents_layer/src/agents_layer.cpp
+#	modified:   ../../../../cohan_planner_multi/hateb_local_planner/src/visualization.cpp
+#	modified:   ../../../../inhus_system/inhus_navigation/maps/laas_adream/goals.xml
+#	modified:   ../../../../inhus_system/inhus_navigation/rviz/inhus.rviz
+#	modified:   ../configs/data_gui.py
+#	modified:   ../configs/laas_adream.yaml
+#	modified:   ../configs/publish_circles.py
+#	modified:   ../launch/global_costmap.yaml
+#	modified:   ../scenarios/pr2_laas_adream_human.py
+#	modified:   ../test.py
+#
+# Untracked files:
+#	../configs/laas_adream_original.yaml
+#	../configs/test.yaml
+#	laas_adream.jpg
+#	obstcale_extraction.py
+#	ref-packages.txt
+#	transformations.py
+#
+
+*** File '(Unnamed)'
+sda
+cx
+cxx
+cxxcccc
+
+*** File '(Unnamed)'
+/home/vvigneshba/iGibson/.git/COMMIT_EDITMSG
+/home/vvigneshba/iGibson/.git/COMMIT_EDITMSG
+* Build Log *
+/home/vvigneshba/ros_ws/cohan_multi_ws/src/cohan_planner_multi/.git/COMMIT_EDITMSG
+* Build Log *
+* Build Log *
+* Build Log *
+* Build Log *
+* Build Log *
+/home/vvigneshba/ros_ws/InHuS_Social_Navigation/.git/COMMIT_EDITMSG
+
+*** File '* Startup Log *'
+Processing '/etc/joe/editorrc'...
+Processing '/etc/joe/ftyperc'...
+Finished processing /etc/joe/ftyperc
+Finished processing /etc/joe/editorrc
