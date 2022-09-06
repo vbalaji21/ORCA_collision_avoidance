@@ -7,7 +7,9 @@
 
 	<node pkg="move_base" type="move_base" respawn="false" name="move_base" ns="smb" output="screen">
 		<remap from="odom" to="/$(arg simulator)_agents/pr2/odom"/>
-		<remap from="cmd_vel" to="/$(arg simulator)_agents/pr2/cmd_vel"/>
+		<!-- <remap to="cmd_vel" from="/$(arg simulator)_agents/pr2/cmd_vel"/> -->
+		<remap to="/cmd_vel" from="/smb/cmd_vel"/>
+		<remap to="/scan" from="/smb/scan"/>
 
 		<remap from="/map" to="map"/>
 

@@ -45,10 +45,10 @@ TebLocalPlannerROS:
   #  acc_lim_x: 4.0
   #  acc_lim_theta: 10.0
   ## SLOW ##
-  max_vel_x: 0.7
+  max_vel_x: 1.0 #0.7
   max_vel_x_backwards: 0.4
   max_vel_theta: 2.0
-  max_vel_y: 0.5
+  max_vel_y: 0.0 #0.5
   acc_lim_y: 2.0
   acc_lim_x: 4.0
   acc_lim_theta: 4.0
@@ -68,7 +68,7 @@ TebLocalPlannerROS:
 
   # GoalTolerance
 
-  xy_goal_tolerance: 0.15
+  xy_goal_tolerance: 0.20 #0.15
   yaw_goal_tolerance: 0.1
   free_goal_vel: false
 
